@@ -3,8 +3,8 @@ Section: mail
 Priority: optional
 Maintainer: Mailman for Debian <pkg-mailman-hackers@lists.alioth.debian.org>
 Uploaders: Thijs Kinkhorst <thijs@debian.org>,
-Build-Depends: debhelper (>= 11), autoconf, python-dev,
- gettext, python-dnspython, dh-python
+Build-Depends: debhelper (>= 11), autoconf, python3-dev,
+ gettext, python3-dnspython, dh-python
 Standards-Version: 4.1.4
 Homepage: http://www.list.org/
 Vcs-Git: https://salsa.debian.org/mailman-team/mailman2.git
