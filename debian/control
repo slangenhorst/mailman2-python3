@@ -14,7 +14,7 @@ Rules-Requires-Root: binary-targets
 Package: mailman
 Architecture: any
 Pre-Depends: debconf | debconf-2.0
-Depends: ${shlibs:Depends}, ${python:Depends}, ${misc:Depends},
+Depends: ${shlibs:Depends}, ${python3:Depends}, ${misc:Depends},
  logrotate, ucf, lsb-base, apache2 | httpd,
  cron | cron-daemon,
  python3-dnspython
