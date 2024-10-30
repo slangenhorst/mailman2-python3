@@ -1,0 +1,11 @@
+01_defaults.debian.patch
+10_wrapper_uid.patch
+16_update_debian.patch
+25_site_logo.patch
+51_nocompile.pyc.patch
+52_check_perms_lstat.patch
+53_disable_addons.patch
+63_update_default_server_language.patch
+66_donot_let_cache_html_pages.patch
+79_archiver_slash.patch
+92_reproducible_build.patch

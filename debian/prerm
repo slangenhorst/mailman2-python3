@@ -1,0 +1,11 @@
+#! /bin/sh -e
+#
+# prerm script for Debian python packages.
+# Written 1998 by Gregor Hoffleit <flight@debian.org>.
+
+if [ "$1" = "failed-upgrade" ] ; then
+  invoke-rc.d mailman stop || true
+  chmod -x /usr/lib/mailman/bin/mailmanctl
+fi
+
+#DEBHELPER#

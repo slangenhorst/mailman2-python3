@@ -1,0 +1,3 @@
+Tests: mailman
+Depends: @, apache2, elinks, postfix, procmail, lsb-release
+Restrictions: needs-root

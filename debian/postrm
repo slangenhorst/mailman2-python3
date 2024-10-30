@@ -1,0 +1,31 @@
+#! /bin/sh -e
+
+#DEBHELPER#
+
+if [ -d /usr/lib/mailman ]; then
+  find /usr/lib/mailman -name *.pyc -print0 | xargs -0 rm -f
+fi
+
+if [ "$1" = purge ]; then
+  # HACK: At present there is no way to ask ucf for registered files
+  #       except for directly querying its database.
+  if which ucf >/dev/null; then
+    printf "Purging files from ucf database " >&2
+    for file in $(sed -e '\|^[0-9a-fA-F]\+[[:space:]]\+/etc/mailman/|!d' -e 's|^[0-9a-fA-F]\+[[:space:]]\+||' /var/lib/ucf/hashfile); do
+      ucf --purge ${file} 2>/dev/null
+      printf . >&2
+    done
+    ucf --purge /etc/cron.d/mailman 2>/dev/null
+    printf ". done.\n" >&2
+  fi
+fi
+
+rm -rf /var/lock/mailman
+
+if [ "$1" = purge ]; then
+  rm -f /etc/cron.d/mailman 
+  rm -rf /etc/mailman
+  rm -rf /var/log/mailman
+#  rm -rf /var/lib/mailman
+  rm -f /var/lib/mailman/data/last_mailman_version
+fi

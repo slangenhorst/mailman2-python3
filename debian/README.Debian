@@ -1,0 +1,75 @@
+Notes for the debian mailman package.
+=====================================
+
+This is the legacy Mailman release
+----------------------------------
+
+This package contains the legacy 2.x branch of Mailman. Development
+happens in the Mailman 3 suite, available since Debian 10 'Buster'
+via the 'mailman3-full' metapackage.
+
+For new installations we recommend to start from the 'mailman3' package.
+If you have an existing installation of Mailman 2.x, you can migrate
+at your own pace.
+
+This mailman (2.x) package will be kept in working order for the
+foreseeable future, but will not see any major changes or improvements.
+It will be removed from the first Debian release after Mailman upstream
+has stopped support for this branch.
+
+Getting started
+---------------
+
+You can access the web interface of mailman on
+http://<hostname>/cgi-bin/mailman/listinfo
+
+You can create new lists with the newlist command (you have to add the
+aliases it needs by hand to /etc/aliases or the corresponding database
+because mailman can not know about configuration of all MTA's, but newlist 
+tells you about the alias it needs, but see the notes on qmail and postfix
+below).
+
+For users of exim: if you want to use the /etc/aliases file for mailman
+aliases, you'll need to specify a user=list line or something like that in
+the system_aliases director.
+
+gate-news is commented out in the default crontab, since most people will be
+less interested in gating news-to-mail and vice versa.
+
+An example Apache configuration is included in /etc/mailman/apache.conf.
+It can be copied to or symlinked from e.g. the /etc/apache2/conf.d/ directory
+(or /etc/apache2/conf-available/mailman in Apache 2.4 and up).
+
+Apache + suexec
+---------------
+
+Since suexec forbids execution of CGIs with gid < 50 and www-data (the default
+for mailman cgi) is 33, you should execute the cgi with a gid of 50-99 or 65534.
+It cannot be any other gid since mailman cgi check that gid < 100 or == 65534.
+
+Qmail
+-----
+For those using qmail, please see the comments in
+/etc/mailman/qmail-to-mailman.py and set it up according to those
+instructions. Additional information may be available in
+/usr/share/doc/mailman/README.QMAIL.gz
+
+Postfix
+-------
+For those using postfix who are able to devote a full subdomain
+lists.example.com for use by Mailman, please see the comments in
+/etc/mailman/postfix-to-mailman.py .
+
+SpamAssassin
+------------
+As of Mailman 2.1-1, Mailman includes the SpamAssassin patch from
+Sourceforge.net.  It is not enabled by default.  If you want to enable
+the handler, adding
+
+GLOBAL_PIPELINE.insert(1, 'SpamAssassin')
+
+at the bottom of your mm_cfg.py should enable it. You can read more
+documentation about how to configure SpamAssassin and Mailman together at
+http://www.daa.com.au/~james/articles/mailman-spamassassin/
+The current version of this handler used in this package is released on
+2003 May 6 by James Henstridge <james@daa.com.au>.

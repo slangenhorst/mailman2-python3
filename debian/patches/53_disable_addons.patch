@@ -1,0 +1,47 @@
+Author: Tollef Fog Heen <tfheen@debian.org>
+Description: Disable some modules which are pulled in from other Debian packages.
+Forwarded: not-needed
+
+Index: b/misc/Makefile.in
+===================================================================
+--- a/misc/Makefile.in	2012-05-20 14:21:35.426866830 +0200
++++ b/misc/Makefile.in	2012-05-20 14:21:41.570897293 +0200
+@@ -57,7 +57,10 @@
+ JACODECSPKG=	@JACODECSPKG@
+ KOCODECSPKG=	@KOCODECSPKG@
+ 
+-PACKAGES= $(EMAILPKG) $(JACODECSPKG) $(KOCODECSPKG)
++#Debian note (LEM): we take the Japanese and Korean codecs from other
++#Debian packages, but not email because the one in Python 2.4 doesn't work
++#with Mailman; when Mailman upgrades to email 3.0.x, we can try again.
++PACKAGES= $(EMAILPKG)
+ 
+ # Modes for directories and executables created by the install
+ # process.  Default to group-writable directories but
+Index: b/misc/paths.py.in
+===================================================================
+--- a/misc/paths.py.in	2012-05-20 14:21:35.426866830 +0200
++++ b/misc/paths.py.in	2012-05-20 14:21:41.570897293 +0200
+@@ -67,13 +67,19 @@
+ # files would be imported automatically.  But because we inhibit the importing
+ # of the site module, we need to be explicit about importing these codecs.
+ if not jaok:
+-    import japanese
++    try:
++        import japanese
++    except ImportError:
++        pass
+ # As of KoreanCodecs 2.0.5, you had to do the second import to get the Korean
+ # codecs installed, however leave the first import in there in case an upgrade
+ # changes this.
+ if not kook:
+-    import korean
+-    import korean.aliases
++    try:
++        import korean
++        import korean.aliases
++    except ImportError:
++        pass
+ # Arabic and Hebrew (RFC-1556) encoding aliases. (temporary solution)
+ import encodings.aliases
+ encodings.aliases.aliases.update({

@@ -1,0 +1,19 @@
+Author: Tollef Fog Heen <tfheen@debian.org>
+Description: Patch to prevent browser from caching pages (Closes: #281284)
+Bug-Debian: #281284
+Forwarded: no
+
+Index: b/Mailman/htmlformat.py
+===================================================================
+--- a/Mailman/htmlformat.py	2012-05-20 14:21:40.878893858 +0200
++++ b/Mailman/htmlformat.py	2012-05-20 14:21:42.038899614 +0200
+@@ -302,7 +302,8 @@
+         charset = 'us-ascii'
+         if self.language and Utils.IsLanguage(self.language):
+             charset = Utils.GetCharSet(self.language)
+-        output = ['Content-Type: text/html; charset=%s\n' % charset]
++        output = ['Content-Type: text/html; charset=%s' % charset]
++        output.append('Cache-control: no-cache\n')
+         if not self.suppress_head:
+             kws.setdefault('bgcolor', self.bgcolor)
+             tab = ' ' * indent

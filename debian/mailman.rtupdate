@@ -1,0 +1,44 @@
+#!/bin/sh
+
+# this script stops mailman before a Python default runtime change and
+# restarts it afterwards
+
+DESC="Mailman MailingList Server"
+NAME="mailman"
+
+# Read configuration variable file if it is present
+[ -r "/etc/default/$NAME" ] && . "/etc/default/$NAME"
+
+# Load the VERBOSE setting and other rcS variables
+[ -f /etc/default/rcS ] && . /etc/default/rcS
+
+# Define LSB log_* functions.
+# Depend on lsb-base (>= 3.0-6) to ensure that this file is present.
+. /lib/lsb/init-functions
+
+if [ "$#" != 3 ]; then
+    echo "Usage: $0 {pre-rtupdate|post-rtupdate|rtupdate} <oldruntime> <newruntime>" >&2
+    exit 1
+fi
+
+action="$1"
+oldruntime="$2"
+newruntime="$3"
+
+case "$action" in
+  pre-rtupdate)
+    [ "$VERBOSE" != no ] && log_warning_msg "Stopping $DESC during Python runtime change..."
+    invoke-rc.d "$NAME" stop
+  ;;
+  post-rtupdate)
+    [ "$VERBOSE" != no ] && log_warning_msg "Restarting $DESC after Python runtime change..."
+    invoke-rc.d "$NAME" start
+  ;;
+  rtupdate)
+  ;;
+  *)
+    echo "$0 called with unknown argument \`$action'" >&2
+    exit 0
+  ;;
+esac
+

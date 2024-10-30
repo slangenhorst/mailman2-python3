@@ -1,0 +1,17 @@
+Author: Tollef Fog Heen <tfheen@debian.org>
+Description: Use lstat instead of stat in check_perms
+Forwarded: not-needed
+
+Index: b/bin/check_perms
+===================================================================
+--- a/bin/check_perms	2012-05-20 14:21:35.462867016 +0200
++++ b/bin/check_perms	2012-05-20 14:21:41.342896168 +0200
+@@ -82,7 +82,7 @@
+     return os.stat(path)[ST_MODE]
+ 
+ def statgidmode(path):
+-    stat = os.stat(path)
++    stat = os.lstat(path)
+     return stat[ST_MODE], stat[ST_GID]
+ 
+ seen = {}
