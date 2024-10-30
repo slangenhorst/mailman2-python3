@@ -10,7 +10,7 @@
 
 PACKAGE=mailman
 DIRLIST="/usr/lib/mailman/Mailman /usr/lib/mailman/bin /usr/lib/mailman/cron /usr/lib/mailman/scripts"
-PYLIBDIR="/usr/lib/python`python -c 'import sys; print sys.version[:3]'`"
+PYLIBDIR="/usr/lib/python`python3 -c 'import sys; print(\"%s.%s\" % (sys.version_info[0],sys.version_info[1]))'`"
 
 if [ "$1" = "configure" ]; then
 
