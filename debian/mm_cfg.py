@@ -26,7 +26,7 @@ you want.  The complete set of distributed defaults, with annotation,
 are in ./Defaults.  In mm_cfg, override only those you want to
 change, after the
 
-  from Defaults import *
+  from Mailman.Defaults import *
 
 line (see below).
 
@@ -42,7 +42,7 @@ DEFAULT_MSG_FOOTER for an example."""
 #######################################################
 #    Here's where we get the distributed defaults.    #
 
-from Defaults import *
+from Mailman.Defaults import *
 
 ##############################################################
 # Put YOUR site-specific configuration below, in mm_cfg.py . #

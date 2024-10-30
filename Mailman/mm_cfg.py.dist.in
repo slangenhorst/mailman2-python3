@@ -26,7 +26,7 @@ file.
 The complete set of distributed defaults, with documentation, are in the file
 Defaults.py.  In mm_cfg.py, override only those you want to change, after the
 
-  from Defaults import *
+  from Mailman.Defaults import *
 
 line (see below).
 
@@ -48,7 +48,7 @@ import sys
 # Here's where we get the distributed defaults.
 
 sys.path.append('@VAR_PREFIX@/Mailman')
-from Defaults import *
+from Mailman.Defaults import *
 
 ##################################################
 # Put YOUR site-specific settings below this line.
