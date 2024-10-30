@@ -1,4 +1,4 @@
-#! @PYTHON@
+#! /usr/bin/python3
 #
 # Copyright (C) 1998-2018 by the Free Software Foundation, Inc.
 #
@@ -84,7 +84,7 @@ def testfile(dbfile):
         loadfunc = pickle.load
     else:
         assert 0
-    fp = open(dbfile)
+    fp = open(dbfile, 'rb')
     try:
         loadfunc(fp)
     finally:

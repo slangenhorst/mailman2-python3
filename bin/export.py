@@ -1,4 +1,4 @@
-#! @PYTHON@
+#! /usr/bin/python3
 #
 # Copyright (C) 2006-2018 by the Free Software Foundation, Inc.
 #
@@ -18,7 +18,7 @@
 # USA.
 
 """Export an XML representation of a mailing list."""
-from __future__ import print_function
+
 
 import os
 import sys
@@ -98,7 +98,7 @@ class XMLDumper(object):
         # The attribute values might contain angle brackets.  They might also
         # be None.
         attrs = []
-        for k, v in tagattrs.items():
+        for k, v in list(tagattrs.items()):
             if v is None:
                 v = ''
             else:
@@ -146,7 +146,7 @@ class XMLDumper(object):
         if _value is None:
             print('<%s%s/>' % (_name, attrs), file=self._fp)
         else:
-            value = escape(unicode(_value))
+            value = escape(str(_value))
             print('<%s%s>%s</%s>' % (_name, attrs, value, _name), file=self._fp)
 
     def _do_list_categories(self, mlist, k, subcat=None):
@@ -241,7 +241,7 @@ class XMLDumper(object):
                 when = datetime.datetime.fromtimestamp(changed)
                 attrs['changed'] = when.isoformat()
             self._element('delivery', **attrs)
-            for option, flag in Defaults.OPTINFO.items():
+            for option, flag in list(Defaults.OPTINFO.items()):
                 # Digest/Regular delivery flag must be handled separately
                 if option in ('digest', 'plain'):
                     continue

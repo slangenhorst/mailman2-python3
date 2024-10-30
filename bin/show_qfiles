@@ -1,4 +1,4 @@
-#! @PYTHON@
+#! /usr/bin/python3
 #
 # Copyright (C) 2006-2018 by the Free Software Foundation, Inc.
 #
@@ -72,7 +72,7 @@ def main():
     for filename in args:
         if not quiet:
             print(('====================>', filename))
-        fp = open(filename)
+        fp = open(filename, 'rb')
         if filename.endswith(".pck"):
             msg = load(fp)
             data = load(fp)

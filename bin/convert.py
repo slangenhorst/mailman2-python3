@@ -1,4 +1,4 @@
-#! @PYTHON@
+#! /usr/bin/python3
 #
 # Copyright (C) 2002-2018 by the Free Software Foundation, Inc.
 #
@@ -22,7 +22,7 @@ This script is intended to be run as a bin/withlist script, i.e.
 
 % bin/withlist -l -r convert <mylist>
 """
-from __future__ import print_function
+
 
 import paths
 from Mailman import Utils

@@ -1,4 +1,4 @@
-#! @PYTHON@
+#! /usr/bin/python3
 #
 # Copyright (C) 2004-2018 by the Free Software Foundation, Inc.
 #

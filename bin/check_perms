@@ -1,4 +1,4 @@
-#! @PYTHON@
+#! /usr/bin/python3
 #
 # Copyright (C) 1998-2018 by the Free Software Foundation, Inc.
 #
@@ -75,7 +75,7 @@ def statmode(path):
     return os.stat(path)[ST_MODE]
 
 def statgidmode(path):
-    stat = os.stat(path)
+    stat = os.lstat(path)
     return stat[ST_MODE], stat[ST_GID]
 
 seen = {}

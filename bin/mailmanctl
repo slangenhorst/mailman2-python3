@@ -1,4 +1,4 @@
-#! @PYTHON@
+#! /usr/bin/python3
 
 # Copyright (C) 2001-2018 by the Free Software Foundation, Inc.
 #
@@ -123,6 +123,7 @@ LOCKFILE = os.path.join(mm_cfg.LOCK_DIR, mm_cfg.MASTER_LOCK_FILE)
 LOCK_LIFETIME = mm_cfg.days(1) + mm_cfg.hours(6)
 SNOOZE = mm_cfg.days(1)
 MAX_RESTARTS = 10
+SIG = None
 
 LogStdErr('error', 'mailmanctl', manual_reprime=0)
 
@@ -459,6 +460,8 @@ def main():
         # We also need to install a SIGTERM handler because that's what init
         # will kill this process with when changing run levels.
         def sigterm_handler(signum, frame, kids=kids):
+            global SIG
+            SIG = signal.SIGTERM
             for pid in list(kids.keys()):
                 try:
                     os.kill(pid, signal.SIGTERM)
@@ -501,7 +504,8 @@ def main():
                 restarting = ''
                 if restart:
                     if (exitstatus == None and killsig != signal.SIGTERM) or \
-                       (killsig == None and exitstatus != signal.SIGTERM):
+                       (killsig == None and exitstatus != signal.SIGTERM and SIG != signal.SIGTERM):
+                        # SIG != signal.SIGTERM BADHACK - couldn't find Exception _io.TextIOWrapper stdout in ArchiveRunner
                         # Then
                         restarting = '[restarting]'
                 qrname, slice, count, restarts = kids[pid]

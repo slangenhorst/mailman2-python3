@@ -1,4 +1,4 @@
-#! @PYTHON@
+#! /usr/bin/python3
 #
 # Copyright (C) 2018 by the Free Software Foundation, Inc.
 #
@@ -25,17 +25,17 @@ from __future__ import print_function
 
 print("""Configuration and build information for Mailman\n""")
 
-print('Mailman version: %s' % '@MM_VERSION@')
-print('Build Date:      %s' % '@BUILD_DATE@')
+print('Mailman version: %s' % '2.1.39')
+print('Build Date:      %s' % 'Wed Jun  5 14:35:53 UTC 2024')
 print('')
-print('prefix:          %s' % '@prefix@')
-print('var_prefix:      %s' % '@VAR_PREFIX@')
-print('mailman_user:    %s' % '@MAILMAN_USER@')
-print('mailman_group:   %s' % '@MAILMAN_GROUP@')
-print('mail_group:      %s' % '@MAIL_GROUP@')
-print('cgi_group:       %s' % '@CGI_GROUP@')
+print('prefix:          %s' % '/var/lib/mailman')
+print('var_prefix:      %s' % '/var/lib/mailman')
+print('mailman_user:    %s' % 'list')
+print('mailman_group:   %s' % 'list')
+print('mail_group:      %s' % 'daemon')
+print('cgi_group:       %s' % 'www-data')
 print('')
 
 
-print('configure_opts: "%s"' % '@CONFIGURE_OPTS@')
+print('configure_opts: "%s"' % '--prefix=/var/lib/mailman --with-username=list --with-groupname=list --with-mail-gid=daemon --with-cgi-gid=www-data --without-permcheck --with-mailhost=localhost --with-urlhost=localhost')
 

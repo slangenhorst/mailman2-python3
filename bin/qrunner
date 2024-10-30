@@ -1,4 +1,4 @@
-#! @PYTHON@
+#! /usr/bin/python3 -u
 
 # Copyright (C) 2001-2018 by the Free Software Foundation, Inc.
 #
@@ -88,7 +88,6 @@ COMMASPACE = ', '
 
 # Flag which says whether we're running under mailmanctl or not.
 AS_SUBPROC = 0
-
 
 
 def usage(code, msg=''):
@@ -209,7 +208,7 @@ def main():
             AS_SUBPROC = 1
         elif opt in ('-v', '--verbose'):
             verbose = 1
-
+    
     if len(args) != 0:
         usage(1)
     if len(runners) == 0:
