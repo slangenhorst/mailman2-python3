@@ -25,7 +25,7 @@ alias would deliver to this script.
 Stdin is the mail message, and argv[1] is the name of the target mailing list.
 
 """
-from __future__ import print_function
+
 
 import sys
 

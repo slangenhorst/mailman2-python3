@@ -1,4 +1,4 @@
-#! @PYTHON@
+#! /usr/bin/python3
 #
 # Copyright (C) 2008-2018 by the Free Software Foundation, Inc.
 #
@@ -88,7 +88,6 @@ def main():
         return
     now = time.time()
     old = now - float(mm_cfg.BAD_SHUNT_STALE_AFTER)
-    os.stat_float_times(True)
     adir = mm_cfg.BAD_SHUNT_ARCHIVE_DIRECTORY
     if (adir and os.access(adir, os.W_OK | os.X_OK)
              and stat.S_ISDIR(os.stat(adir).st_mode)):
@@ -101,8 +100,8 @@ def main():
     for qdir in (mm_cfg.BADQUEUE_DIR, mm_cfg.SHUNTQUEUE_DIR):
         try:
             names = os.listdir(qdir)
-        except OSError, e:
-            if e.errno <> errno.ENOENT:
+        except OSError as e:
+            if e.errno != errno.ENOENT:
                 # OK if qdir doesn't exist, else
                 raise
             continue

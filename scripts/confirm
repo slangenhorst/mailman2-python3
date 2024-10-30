@@ -23,7 +23,7 @@ of the target mailing list.
 
 Errors are redirected to logs/errors.
 """
-from __future__ import print_function
+
 
 import sys
 

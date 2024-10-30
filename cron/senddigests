@@ -1,4 +1,4 @@
-#! @PYTHON@
+#! /usr/bin/python3
 #
 # Copyright (C) 1998-2018 by the Free Software Foundation, Inc.
 #
@@ -99,17 +99,17 @@ def main():
         if mlist.digest_send_periodic:
             mlist.Lock()
             try:
-                try:
+                #try:
                     mlist.send_digest_now()
                     mlist.Save()
                 # We are unable to predict what exception may occur in digest
                 # processing and we don't want to lose the other digests, so
                 # we catch everything.
-                except Exception as errmsg:
-                    print( 'List: %s: problem processing %s:\n%s' % \
-                        (listname,
-                         os.path.join(mlist.fullpath(), 'digest.mbox'),
-                         errmsg), file=sys.stderr)
+                #except Exception as errmsg:
+                #    print( 'List: %s: problem processing %s:\n%s' % \
+                #        (listname,
+                #         os.path.join(mlist.fullpath(), 'digest.mbox'),
+                #         errmsg), file=sys.stderr)
             finally:
                 mlist.Unlock()
 
