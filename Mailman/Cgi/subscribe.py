@@ -16,7 +16,7 @@
 # USA.
 
 """Process subscription or roster requests from listinfo form."""
-from __future__ import print_function
+
 
 import sys
 import os
@@ -55,7 +55,7 @@ def main():
     if not parts:
         doc.AddItem(Header(2, _("Error")))
         doc.AddItem(Bold(_('Invalid options to CGI script')))
-        print(doc.Format())
+        print((doc.Format()))
         return
 
     listname = parts[0].lower()
@@ -68,7 +68,7 @@ def main():
         doc.AddItem(Bold(_('No such list <em>%(safelistname)s</em>')))
         # Send this with a 404 status.
         print('Status: 404 Not Found')
-        print(doc.Format())
+        print((doc.Format()))
         syslog('error', 'subscribe: No such list "%s": %s\n', listname, e)
         return
 
@@ -83,7 +83,7 @@ def main():
         doc.AddItem(Bold(_('Invalid options to CGI script.')))
         # Send this with a 400 status.
         print('Status: 400 Bad Request')
-        print(doc.Format())
+        print((doc.Format()))
         return
     if not Utils.IsLanguage(language):
         language = mlist.preferred_language
@@ -358,4 +358,4 @@ def print_results(mlist, results, doc, lang):
     replacements['<mm-results>'] = results
     output = mlist.ParseTags('subscribe.html', replacements, lang)
     doc.AddItem(output)
-    print(doc.Format())
+    print((doc.Format()))

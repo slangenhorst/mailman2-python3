@@ -20,7 +20,7 @@ Also do other manipulations of From:, Reply-To: and Cc: depending on
 list configuration.
 """
 
-from __future__ import nested_scopes
+
 import re
 
 from email.charset import Charset
@@ -172,7 +172,7 @@ def process(mlist, msg, msgdata):
         i18n.set_translation(otrans)
         uvia = str(via, lcs, errors='replace')
         # Replace the dummy replacements.
-        uvia = re.sub(u'%\(lrn\)s', ulrn, re.sub(u'%\(realname\)s', urn, uvia))
+        uvia = re.sub('%\(lrn\)s', ulrn, re.sub('%\(realname\)s', urn, uvia))
         # And get an RFC 2047 encoded header string.
         dn = str(Header(uvia, lcs))
         change_header('From',
@@ -443,16 +443,16 @@ def prefix_subject(mlist, msg, msgdata):
     if cset == 'us-ascii':
         try:
             if old_style:
-                h = u' '.join([recolon, prefix, subject])
+                h = ' '.join([recolon, prefix, subject])
             else:
                 if recolon:
-                    h = u' '.join([prefix, recolon, subject])
+                    h = ' '.join([prefix, recolon, subject])
                 else:
-                    h = u' '.join([prefix, subject])
+                    h = ' '.join([prefix, subject])
             h = h.encode('us-ascii')
             h = uheader(mlist, h, 'Subject', continuation_ws=ws)
             change_header('Subject', h, mlist, msg, msgdata)
-            ss = u' '.join([recolon, subject])
+            ss = ' '.join([recolon, subject])
             ss = ss.encode('us-ascii')
             ss = uheader(mlist, ss, 'Subject', continuation_ws=ws)
             msgdata['stripped_subject'] = ss
@@ -498,8 +498,8 @@ def ch_oneline(headerstr):
                 cset = x[1]
                 break
         h = make_header(d)
-        ustr = h.__unicode__()
-        oneline = u''.join(ustr.splitlines())
+        ustr = h.__str__()
+        oneline = ''.join(ustr.splitlines())
         return oneline.encode(cset, 'replace'), cset
     except (LookupError, UnicodeError, ValueError, HeaderParseError):
         # possibly charset problem. return with undecoded string in one line.

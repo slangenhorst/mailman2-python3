@@ -1,4 +1,4 @@
-from __future__ import division
+
 # Copyright (C) 2001-2018 by the Free Software Foundation, Inc.
 #
 # This program is free software; you can redistribute it and/or

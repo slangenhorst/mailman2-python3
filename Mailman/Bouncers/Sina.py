@@ -15,7 +15,7 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 
 """sina.com bounces"""
-from __future__ import print_function
+
 
 import re
 from email import Iterators

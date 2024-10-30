@@ -16,7 +16,7 @@
 # USA.
 
 """Produce and process the pending-approval items for a list."""
-from __future__ import print_function
+
 
 from builtins import zip
 from builtins import str
@@ -28,7 +28,7 @@ import signal
 import email
 import email.errors
 import time
-from urllib.parse import quote_plus, unquote_plus
+from urllib.parse import quote_plus, unquote_plus, parse_qs
 
 from Mailman import mm_cfg
 from Mailman import Utils
@@ -140,7 +140,7 @@ def main():
         doc.AddItem(Bold(_('Invalid options to CGI script.')))
         # Send this with a 400 status.
         print('Status: 400 Bad Request')
-        print(doc.Format())
+        print((doc.Format()))
         return
 
     # CSRF check
@@ -181,10 +181,10 @@ def main():
     # See if this is a logout request
     if len(parts) >= 2 and parts[1] == 'logout':
         if mlist.AuthContextInfo(mm_cfg.AuthSiteAdmin)[0] == 'site':
-            print(mlist.ZapCookie(mm_cfg.AuthSiteAdmin))
+            print((mlist.ZapCookie(mm_cfg.AuthSiteAdmin)))
         if mlist.AuthContextInfo(mm_cfg.AuthListModerator)[0]:
-            print(mlist.ZapCookie(mm_cfg.AuthListModerator))
-        print(mlist.ZapCookie(mm_cfg.AuthListAdmin))
+            print((mlist.ZapCookie(mm_cfg.AuthListModerator)))
+        print((mlist.ZapCookie(mm_cfg.AuthListAdmin)))
         Auth.loginpage(mlist, 'admindb', frontpage=1)
         return
 
@@ -201,14 +201,14 @@ def main():
     if envar:
         # POST methods, even if their actions have a query string, don't get
         # put into FieldStorage's keys :-(
-        qs = cgi.parse_qs(envar).get('sender')
-        if qs and type(qs) == ListType:
+        qs = parse_qs(envar).get('sender')
+        if qs and type(qs) == list:
             sender = qs[0]
-        qs = cgi.parse_qs(envar).get('msgid')
-        if qs and type(qs) == ListType:
+        qs = parse_qs(envar).get('msgid')
+        if qs and type(qs) == list:
             msgid = qs[0]
-        qs = cgi.parse_qs(envar).get('details')
-        if qs and type(qs) == ListType:
+        qs = parse_qs(envar).get('details')
+        if qs and type(qs) == list:
             details = qs[0]
 
     # We need a signal handler to catch the SIGTERM that can come from Apache
@@ -262,7 +262,7 @@ def main():
                 '<b>%s</b>' % _('Logout')))
             doc.AddItem('</font></div>\n')
             doc.AddItem(mlist.GetMailmanFooter())
-            print(doc.Format())
+            print((doc.Format()))
             mlist.Save()
             return
 
@@ -344,7 +344,7 @@ def main():
             '<b>%s</b>' % _('Logout')))
         doc.AddItem('</font></div>\n')
         doc.AddItem(mlist.GetMailmanFooter())
-        print(doc.Format())
+        print((doc.Format()))
         # Commit all changes
         mlist.Save()
     finally:
@@ -366,7 +366,7 @@ def handle_no_list(msg=''):
     doc.AddItem(_('You must specify a list name.  Here is the %(link)s'))
     doc.AddItem('<hr>')
     doc.AddItem(MailmanLogo())
-    print(doc.Format())
+    print((doc.Format()))
 
 
 
@@ -719,11 +719,17 @@ def show_post_requests(mlist, id, info, total, count, form):
     chars = 0
     # A negative value means, include the entire message regardless of size
     limit = mm_cfg.ADMINDB_PAGE_TEXT_LIMIT
-    for line in email.Iterators.body_line_iterator(msg, decode=True):
-        lines.append(line)
-        chars += len(line)
-        if chars >= limit > 0:
-            break
+    for part in msg.walk():
+        if part.get_content_maintype() == 'text':
+            try:
+                payload = part.get_payload().decode().split("\n")
+            except:
+                payload = part.get_payload().split("\n")
+            for line in payload:
+                lines.append(line+"\n")
+                chars += len(line)
+                if chars >= limit > 0:
+                    break
     # We may have gone over the limit on the last line, but keep the full line
     # anyway to avoid losing part of a multibyte character.
     body = EMPTYSTRING.join(lines)
@@ -905,7 +911,7 @@ def process_form(mlist, doc, cgidata):
     erroraddrs = []
     for k in list(cgidata.keys()):
         formv = cgidata[k]
-        if type(formv) == ListType:
+        if type(formv) == list:
             continue
         try:
             v = int(formv.value)

@@ -307,7 +307,7 @@ class Article(pipermail.Article):
             if charset[0]=="'" and charset[-1]=="'":
                 charset = charset[1:-1]
             try:
-                body = message.get_payload(decode=True)
+                body = message.get_payload(decode=True).decode('utf-8')
             except binascii.Error:
                 body = None
             if body and charset != Utils.GetCharSet(self._lang):
@@ -414,7 +414,7 @@ class Article(pipermail.Article):
                 otrans = i18n.get_translation()
                 try:
                     i18n.set_language(self._lang)
-                    atmark = str(_(' at '), Utils.GetCharSet(self._lang))
+                    atmark = _(' at ')
                     subject = re.sub(r'([-+,.\w]+)@([-+.\w]+)',
                               '\g<1>' + atmark + '\g<2>', subject)
                 finally:
@@ -429,7 +429,7 @@ class Article(pipermail.Article):
         if prefix:
             prefix_pat = re.escape(prefix)
             prefix_pat = '%'.join(prefix_pat.split(r'\%'))
-            prefix_pat = re.sub(r'%\d*d', r'\s*\d+\s*', prefix_pat)
+            prefix_pat = re.sub(r'%\d*d', r'\\s*\\d+\\s*', prefix_pat)
             subject = re.sub(prefix_pat, '', subject)
         subject = subject.lstrip()
         # MAS Should we strip FW and FWD too?
@@ -444,14 +444,14 @@ class Article(pipermail.Article):
         # Convert 'field' into Unicode one line string.
         try:
             pairs = decode_header(field)
-            ustr = make_header(pairs).__unicode__()
+            ustr = make_header(pairs).__str__()
         except (LookupError, UnicodeError, ValueError, HeaderParseError):
             # assume list's language
             cset = Utils.GetCharSet(self._mlist.preferred_language)
             if cset == 'us-ascii':
                 cset = 'iso-8859-1' # assume this for English list
             ustr = str(field, cset, 'replace')
-        return u''.join(ustr.splitlines())
+        return ''.join(ustr.splitlines())
 
     def as_html(self):
         d = self.__dict__.copy()
@@ -519,7 +519,7 @@ class Article(pipermail.Article):
 
     def _get_next(self):
         """Return the href and subject for the previous message"""
-        if self.__next__:
+        if hasattr(self, "__next__") and self.__next__:
             subject = self._get_subject_enc(self.__next__)
             next = ('<LINK REL="Next"  HREF="%s">'
                     % (url_quote(self.next.filename)))
@@ -581,13 +581,13 @@ class Article(pipermail.Article):
             otrans = i18n.get_translation()
             try:
                 i18n.set_language(self._lang)
-                atmark = str(_(' at '), cset)
+                atmark = _(' at ')
                 body = re.sub(r'([-+,.\w]+)@([-+.\w]+)',
                               '\g<1>' + atmark + '\g<2>', body)
             finally:
                 i18n.set_translation(otrans)
         # Return body to character set of article.
-        body = body.encode(cset, 'replace')
+        #body = body.encode(cset, 'replace')
         return NL.join(headers) % d + '\n\n' + body + '\n'
 
     def _set_date(self, message):
@@ -1040,7 +1040,7 @@ class HyperArchive(pipermail.T):
 
     def write_index_header(self):
         self.depth=0
-        print(self.html_head())
+        print((self.html_head()))
         if not self.THREADLAZY and self.type=='Thread':
             self.message(C_("Computing threaded index\n"))
             self.updateThreadedIndex()
@@ -1048,7 +1048,7 @@ class HyperArchive(pipermail.T):
     def write_index_footer(self):
         for i in range(self.depth):
             print('</UL>')
-        print(self.html_foot())
+        print((self.html_foot()))
 
     def write_index_entry(self, article):
         subject = self.get_header("subject", article)
@@ -1068,9 +1068,9 @@ class HyperArchive(pipermail.T):
             'sequence': article.sequence,
             'author':   author
         }
-        print(quick_maketext(
+        print((quick_maketext(
             'archidxentry.html', d,
-            mlist=self.maillist))
+            mlist=self.maillist)))
 
     def get_header(self, field, article):
         # if we have no decoded header, return the encoded one
@@ -1092,7 +1092,7 @@ class HyperArchive(pipermail.T):
         elif depth > self.depth:
             for i in range(depth-self.depth):
                 print('<UL>')
-        print('<!--%i %s -->' % (depth, article.threadKey))
+        print(('<!--%i %s -->' % (depth, article.threadKey)))
         self.depth = depth
         self.write_index_entry(article)
 
@@ -1185,8 +1185,6 @@ class HyperArchive(pipermail.T):
         # 3. make it faster
         # TK: Prepare for unicode obscure.
         atmark = _(' at ')
-        if lines and isinstance(lines[0], str):
-            atmark = str(atmark, Utils.GetCharSet(self.lang), 'replace')
         source = lines[:]
         dest = lines
         last_line_was_quoted = 0

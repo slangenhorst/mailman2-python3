@@ -16,8 +16,8 @@
 # USA.
 
 """Produce and handle the member options."""
-from __future__ import division
-from __future__ import print_function
+
+
 
 from builtins import range
 from builtins import object
@@ -66,7 +66,7 @@ def main():
         doc.AddItem('<hr>')
         doc.AddItem(MailmanLogo())
         print('Status: 405 Method Not Allowed')
-        print(doc.Format())
+        print((doc.Format()))
         return
 
     parts = Utils.GetPathPieces()
@@ -78,7 +78,7 @@ def main():
         doc.addError(_('Invalid options to CGI script.'))
         doc.AddItem('<hr>')
         doc.AddItem(MailmanLogo())
-        print(doc.Format())
+        print((doc.Format()))
         return
 
     # get the list and user's name
@@ -97,7 +97,7 @@ def main():
         doc.AddItem(MailmanLogo())
         # Send this with a 404 status.
         print('Status: 404 Not Found')
-        print(doc.Format())
+        print((doc.Format()))
         syslog('error', 'options: No such list "%s": %s\n', listname, e)
         return
 
@@ -115,7 +115,7 @@ def main():
         doc.AddItem(Bold(_('Invalid options to CGI script.')))
         # Send this with a 400 status.
         print('Status: 400 Bad Request')
-        print(doc.Format())
+        print((doc.Format()))
         return
 
     # Set the language for the page.  If we're coming from the listinfo cgi,
@@ -139,7 +139,7 @@ def main():
                     or cgidata.getfirst('login-remind')):
                 doc.addError(_('No address given'))
             loginpage(mlist, doc, None, language)
-            print(doc.Format())
+            print((doc.Format()))
             return
     else:
         user = Utils.LCDomain(Utils.UnobscureEmail(SLASH.join(parts[1:])))
@@ -159,7 +159,7 @@ def main():
     except Errors.EmailAddressError:
         doc.addError(_('Illegal Email Address'))
         loginpage(mlist, doc, None, language)
-        print(doc.Format())
+        print((doc.Format()))
         return
     # Sanity check the user, but only give the "no such member" error when
     # using public rosters, otherwise, we'll leak membership information.
@@ -167,7 +167,7 @@ def main():
         if mlist.private_roster == 0:
             doc.addError(_('No such member: %(safeuser)s.'))
             loginpage(mlist, doc, None, language)
-            print(doc.Format())
+            print((doc.Format()))
         return
 
     # Avoid cross-site scripting attacks
@@ -243,7 +243,7 @@ def main():
                 else:
                     doc.addError(msgc, tag='')
         loginpage(mlist, doc, user, language)
-        print(doc.Format())
+        print((doc.Format()))
         return
 
     # Are we processing a password reminder from the login screen?
@@ -264,7 +264,7 @@ def main():
                        user)
                 doc.addError(msg, tag='')
         loginpage(mlist, doc, user, language)
-        print(doc.Format())
+        print((doc.Format()))
         return
 
     # Get the password from the form.
@@ -308,7 +308,7 @@ def main():
             # give an HTTP 401 for authentication failure
             print('Status: 401 Unauthorized')
         loginpage(mlist, doc, user, language)
-        print(doc.Format())
+        print((doc.Format()))
         return
 
     # From here on out, the user is okay to view and modify their membership
@@ -320,7 +320,7 @@ def main():
 
     if not mlist.isMember(user):
         loginpage(mlist, doc, user, language)
-        print(doc.Format())
+        print((doc.Format()))
         return
 
     # Before going further, get the result of CSRF check and do nothing 
@@ -329,7 +329,7 @@ def main():
         doc.addError(
             _('The form lifetime has expired. (request forgery check)'))
         options_page(mlist, doc, user, cpuser, userlang)
-        print(doc.Format())
+        print((doc.Format()))
         return
 
     # See if this is VARHELP on topics.
@@ -339,7 +339,7 @@ def main():
     elif os.environ.get('QUERY_STRING'):
         # POST methods, even if their actions have a query string, don't get
         # put into FieldStorage's keys :-(
-        qs = cgi.parse_qs(os.environ['QUERY_STRING']).get('VARHELP')
+        qs = urllib.parse.parse_qs(os.environ['QUERY_STRING']).get('VARHELP')
         if qs and type(qs) == list:
             varhelp = qs[0]
     if varhelp:
@@ -351,9 +351,9 @@ def main():
         return
 
     if 'logout' in cgidata:
-        print(mlist.ZapCookie(mm_cfg.AuthUser, user))
+        print((mlist.ZapCookie(mm_cfg.AuthUser, user)))
         loginpage(mlist, doc, user, language)
-        print(doc.Format())
+        print((doc.Format()))
         return
 
     if 'emailpw' in cgidata:
@@ -361,7 +361,7 @@ def main():
         options_page(
             mlist, doc, user, cpuser, userlang,
             _('A reminder of your password has been emailed to you.'))
-        print(doc.Format())
+        print((doc.Format()))
         return
 
     if 'othersubs' in cgidata:
@@ -370,7 +370,7 @@ def main():
             doc.addError(_("""The list administrator may not view the other
             subscriptions for this user."""), _('Note: '))
             options_page(mlist, doc, user, cpuser, userlang)
-            print(doc.Format())
+            print((doc.Format()))
             return
         hostname = mlist.host_name
         title = _('List subscriptions for %(safeuser)s on %(hostname)s')
@@ -395,7 +395,7 @@ def main():
         onlists.sort()
         items = OrderedList(*[link for name, link in onlists])
         doc.AddItem(items)
-        print(doc.Format())
+        print((doc.Format()))
         return
 
     if 'change-of-address' in cgidata:
@@ -438,12 +438,12 @@ def main():
             if newaddr != confirmaddr:
                 options_page(mlist, doc, user, cpuser, userlang,
                              _('Addresses did not match!'))
-                print(doc.Format())
+                print((doc.Format()))
                 return
             if newaddr == cpuser:
                 options_page(mlist, doc, user, cpuser, userlang,
                              _('You are already using that email address'))
-                print(doc.Format())
+                print((doc.Format()))
                 return
             # If they're requesting to subscribe an address which is already a
             # member, and they're /not/ doing it globally, then refuse.
@@ -464,13 +464,13 @@ address.  Upon confirmation, any other mailing list containing the address
                     options_page(
                         mlist, doc, user, cpuser, userlang,
                         _('The new address is already a member: %(newaddr)s'))
-                    print(doc.Format())
+                    print((doc.Format()))
                     return
             set_address = 1
         elif (newaddr or confirmaddr) and not set_membername:
             options_page(mlist, doc, user, cpuser, userlang,
                          _('Addresses may not be blank'))
-            print(doc.Format())
+            print((doc.Format()))
             return
 
         # Standard sigterm handler.
@@ -513,7 +513,7 @@ address.  Upon confirmation, any other mailing list containing the address
             msg += _('Member name successfully changed. ')
 
         options_page(mlist, doc, user, cpuser, userlang, msg)
-        print(doc.Format())
+        print((doc.Format()))
         return
 
     if 'changepw' in cgidata:
@@ -523,19 +523,19 @@ address.  Upon confirmation, any other mailing list containing the address
             doc.addError(_("""The list administrator may not change the
                     password for a user."""))
             options_page(mlist, doc, user, cpuser, userlang)
-            print(doc.Format())
+            print((doc.Format()))
             return
         newpw = cgidata.getfirst('newpw', '').strip()
         confirmpw = cgidata.getfirst('confpw', '').strip()
         if not newpw or not confirmpw:
             options_page(mlist, doc, user, cpuser, userlang,
                          _('Passwords may not be blank'))
-            print(doc.Format())
+            print((doc.Format()))
             return
         if newpw != confirmpw:
             options_page(mlist, doc, user, cpuser, userlang,
                          _('Passwords did not match!'))
-            print(doc.Format())
+            print((doc.Format()))
             return
 
         # See if the user wants to change their passwords globally, however
@@ -557,10 +557,10 @@ address.  Upon confirmation, any other mailing list containing the address
             change_password(gmlist, user, newpw, confirmpw)
 
         # Regenerate the cookie so a re-authorization isn't necessary
-        print(mlist.MakeCookie(mm_cfg.AuthUser, user))
+        print((mlist.MakeCookie(mm_cfg.AuthUser, user)))
         options_page(mlist, doc, user, cpuser, userlang,
                      _('Password successfully changed.'))
-        print(doc.Format())
+        print((doc.Format()))
         return
 
     if 'unsub' in cgidata:
@@ -571,7 +571,7 @@ address.  Upon confirmation, any other mailing list containing the address
                 _('''You must confirm your unsubscription request by turning
                 on the checkbox below the <em>Unsubscribe</em> button.  You
                 have not been unsubscribed!'''))
-            print(doc.Format())
+            print((doc.Format()))
             return
 
         # Standard signal handler
@@ -624,7 +624,7 @@ address.  Upon confirmation, any other mailing list containing the address
             about your unsubscription, please contact the list owners at
             %(owneraddr)s."""))
         doc.AddItem(mlist.GetMailmanFooter())
-        print(doc.Format())
+        print((doc.Format()))
         return
 
     if 'options-submit' in cgidata:
@@ -688,7 +688,7 @@ address.  Upon confirmation, any other mailing list containing the address
             # Some topics were selected.  topicnames can actually be a string
             # or a list of strings depending on whether more than one topic
             # was selected or not.
-            if not isinstance(topicnames, ListType):
+            if not isinstance(topicnames, list):
                 # Assume it was a bare string, so listify it
                 topicnames = [topicnames]
             # unquote the topic names
@@ -791,14 +791,14 @@ address.  Upon confirmation, any other mailing list containing the address
             msg += _('You may get one last digest.')
 
         options_page(mlist, doc, user, cpuser, userlang, msg)
-        print(doc.Format())
+        print((doc.Format()))
         return
 
     if mlist.isMember(user):
         options_page(mlist, doc, user, cpuser, userlang)
     else:
         loginpage(mlist, doc, user, userlang)
-    print(doc.Format())
+    print((doc.Format()))
 
 
 
@@ -1137,7 +1137,7 @@ def topic_details(mlist, doc, user, cpuser, userlang, varhelp):
     if not name:
         options_page(mlist, doc, user, cpuser, userlang,
                      _('Requested topic is not valid: %(topicname)s'))
-        print(doc.Format())
+        print((doc.Format()))
         return
 
     table = Table(border=3, width='100%')
@@ -1156,4 +1156,4 @@ def topic_details(mlist, doc, user, cpuser, userlang, varhelp):
         table.AddCellInfo(row, 0, bgcolor=mm_cfg.WEB_ADMINITEM_COLOR)
 
     options_page(mlist, doc, user, cpuser, userlang, table.Format())
-    print(doc.Format())
+    print((doc.Format()))

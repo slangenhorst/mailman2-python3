@@ -15,7 +15,7 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 
 """Remove/delete mailing lists through the web."""
-from __future__ import print_function
+
 
 import os
 import cgi
@@ -50,7 +50,7 @@ def main():
         doc.AddItem(Bold(_('Invalid options to CGI script.')))
         # Send this with a 400 status.
         print('Status: 400 Bad Request')
-        print(doc.Format())
+        print((doc.Format()))
         return
 
     parts = Utils.GetPathPieces()
@@ -63,7 +63,7 @@ def main():
             Header(3, Bold(FontAttr(title, color='#ff0000', size='+2'))))
         doc.AddItem('<hr>')
         doc.AddItem(MailmanLogo())
-        print(doc.Format())
+        print((doc.Format()))
         syslog('error', 'Bad URL specification: %s', parts)
         return
         
@@ -82,7 +82,7 @@ def main():
         doc.AddItem(MailmanLogo())
         # Send this with a 404 status.
         print('Status: 404 Not Found')
-        print(doc.Format())
+        print((doc.Format()))
         syslog('error', 'rmlist: No such list "%s": %s\n', listname, e)
         return
 
@@ -97,19 +97,19 @@ def main():
         doc.AddItem(
             Header(3, Bold(FontAttr(title, color='#ff0000', size='+2'))))
         doc.AddItem(mlist.GetMailmanFooter())
-        print(doc.Format())
+        print((doc.Format()))
         syslog('mischief', 'Attempt to sneakily delete a list: %s', listname)
         return
 
     if 'doit' in cgidata:
         process_request(doc, cgidata, mlist)
-        print(doc.Format())
+        print((doc.Format()))
         return
 
     request_deletion(doc, mlist)
     # Always add the footer and print the document
     doc.AddItem(mlist.GetMailmanFooter())
-    print(doc.Format())
+    print((doc.Format()))
 
 
 

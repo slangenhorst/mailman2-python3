@@ -57,7 +57,7 @@ class Digester(object):
                 mboxfp = None
                 # See if there's a digest pending for this mailing list
                 if os.stat(digestmbox)[ST_SIZE] > 0:
-                    mboxfp = open(digestmbox)
+                    mboxfp = open(digestmbox, 'rb')
                     ToDigest.send_digests(self, mboxfp)
                     os.unlink(digestmbox)
             finally:

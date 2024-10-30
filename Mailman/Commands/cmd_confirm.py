@@ -20,7 +20,7 @@
         Confirm an action.  The confirmation-string is required and should be
         supplied by a mailback confirmation notice.
 """
-from __future__ import division
+
 
 from Mailman import mm_cfg
 from Mailman import Errors

@@ -18,7 +18,7 @@
 """ Cross-Site Request Forgery checker """
 
 import time
-import urllib
+import urllib.request, urllib.parse, urllib.error
 import marshal
 import binascii
 
@@ -41,7 +41,7 @@ def csrf_token(mlist, contexts, user=None):
 
     if user:
         # Unmunge a munged email address.
-        user = UnobscureEmail(urllib.unquote(user))
+        user = UnobscureEmail(urllib.parse.unquote(user))
         
     for context in contexts:
         key, secret = mlist.AuthContextInfo(context, user)
@@ -54,7 +54,7 @@ def csrf_token(mlist, contexts, user=None):
     mac = sha_new(needs_hash).hexdigest()
     keymac = '%s:%s' % (key, mac)
     token = binascii.hexlify(marshal.dumps((issued, keymac)))
-    return token
+    return token.decode()
 
 def csrf_check(mlist, token, cgi_user=None):
     """ check token by mailman cookie validation algorithm """
@@ -85,7 +85,7 @@ def csrf_check(mlist, token, cgi_user=None):
             # This is for CVE-2021-42097.  The token is a user token because
             # of the fix for CVE-2021-42096 but it must match the user for
             # whom the options page is requested.
-            raw_user = UnobscureEmail(urllib.unquote(user))
+            raw_user = UnobscureEmail(urllib.parse.unquote(user))
             if cgi_user and cgi_user.lower() != raw_user.lower():
                 syslog('mischief',
                        'Form for user %s submitted with CSRF token '
@@ -95,7 +95,7 @@ def csrf_check(mlist, token, cgi_user=None):
         context = keydict.get(key)
         key, secret = mlist.AuthContextInfo(context, user)
         assert key
-        mac = sha_new(secret + repr(issued)).hexdigest()
+        mac = sha_new((secret + repr(issued)).encode()).hexdigest()
         if (mac == received_mac 
             and 0 < time.time() - issued < mm_cfg.FORM_LIFETIME):
             return True

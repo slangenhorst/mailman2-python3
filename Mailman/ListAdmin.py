@@ -251,7 +251,7 @@ class ListAdmin(object):
             outpath = os.path.join(mm_cfg.SPAM_DIR, spamfile)
             head, ext = os.path.splitext(outpath)
             outpath = head + '.msg'
-            outfp = open(outpath, 'wb')
+            outfp = open(outpath, 'w')
             try:
                 if path.endswith('.pck'):
                     g = Generator(outfp)
@@ -301,6 +301,10 @@ class ListAdmin(object):
             rejection = 'Refused'
             lang = self.getMemberLanguage(sender)
             subject = Utils.oneline(subject, Utils.GetCharSet(lang))
+            try:
+                subject = subject.decode("utf-8")
+            except:
+                pass
             self.__refuse(_('Posting of your message titled "%(subject)s"'),
                           sender, comment or _('[No reason given]'),
                           lang=lang)

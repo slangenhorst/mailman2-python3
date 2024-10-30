@@ -39,4 +39,7 @@ class RetryRunner(Runner):
 
     def _snooze(self, filecnt):
         # We always want to snooze
-        time.sleep(self.SLEEPTIME)
+        for i in range (self.SLEEPTIME * 30):
+            if not self._stop:
+                time.sleep(2)
+

@@ -17,11 +17,6 @@
 
 """Process and produce the list-administration options forms."""
 
-# For Python 2.1.x compatibility
-from __future__ import nested_scopes
-from __future__ import print_function
-
-from past.builtins import cmp
 import sys
 import os
 import re
@@ -55,6 +50,9 @@ NL = '\n'
 OPTCOLUMNS = 11
 
 AUTH_CONTEXTS = (mm_cfg.AuthListAdmin, mm_cfg.AuthSiteAdmin)
+
+def cmp(a, b):
+    return (a > b) - (a < b)
 
 
 
@@ -93,7 +91,7 @@ def main():
         doc.AddItem(Bold(_('Invalid options to CGI script.')))
         # Send this with a 400 status.
         print('Status: 400 Bad Request')
-        print(doc.Format())
+        print((doc.Format()))
         return
 
     # CSRF check
@@ -144,8 +142,8 @@ def main():
     if category == 'logout':
         # site-wide admin should also be able to logout.
         if mlist.AuthContextInfo(mm_cfg.AuthSiteAdmin)[0] == 'site':
-            print(mlist.ZapCookie(mm_cfg.AuthSiteAdmin))
-        print(mlist.ZapCookie(mm_cfg.AuthListAdmin))
+            print((mlist.ZapCookie(mm_cfg.AuthSiteAdmin)))
+        print((mlist.ZapCookie(mm_cfg.AuthListAdmin)))
         Auth.loginpage(mlist, 'admin', frontpage=1)
         return
 
@@ -158,7 +156,7 @@ def main():
     qsenviron = os.environ.get('QUERY_STRING')
     parsedqs = None
     if qsenviron:
-        parsedqs = cgi.parse_qs(qsenviron)
+        parsedqs = urllib.parse.parse_qs(qsenviron)
     if 'VARHELP' in cgidata:
         varhelp = cgidata.getfirst('VARHELP')
     elif parsedqs:
@@ -242,7 +240,7 @@ def main():
                 tag=_('Warning: '))
         # Glom up the results page and print it out
         show_results(mlist, doc, category, subcat, cgidata)
-        print(doc.Format())
+        print((doc.Format()))
         mlist.Save()
     finally:
         # Now be sure to unlock the list.  It's okay if we get a signal here
@@ -353,7 +351,7 @@ def admin_overview(msg=''):
     doc.AddItem(table)
     doc.AddItem('<hr>')
     doc.AddItem(MailmanLogo())
-    print(doc.Format())
+    print((doc.Format()))
 
 
 
@@ -381,7 +379,7 @@ def option_help(mlist, varhelp):
         bad = _('No valid variable name found.')
         doc.addError(bad)
         doc.AddItem(mlist.GetMailmanFooter())
-        print(doc.Format())
+        print((doc.Format()))
         return
     # Get the details about the variable
     varname, kind, params, dependancies, description, elaboration = \
@@ -427,7 +425,7 @@ def option_help(mlist, varhelp):
     doc.AddItem(Link(url, _('return to the %(categoryname)s options page.')))
     doc.AddItem('</em>')
     doc.AddItem(mlist.GetMailmanFooter())
-    print(doc.Format())
+    print((doc.Format()))
 
 
 
@@ -935,19 +933,19 @@ def membership_options(mlist, subcat, cgidata, doc, form):
     chunksz = mlist.admin_member_chunksize
     # The email addresses had /better/ be ASCII, but might be encoded in the
     # database as Unicodes.
-    all = [_m.encode() for _m in mlist.getMembers()]
-    all.sort(lambda x, y: cmp(x.lower(), y.lower()))
+    all = mlist.getMembers()
+    all.sort(key=str.casefold)
     # See if the query has a regular expression
     regexp = cgidata.getfirst('findmember', '').strip()
-    try:
-        regexp = regexp.decode(Utils.GetCharSet(mlist.preferred_language))
-    except UnicodeDecodeError:
-        # This is probably a non-ascii character and an English language
-        # (ascii) list.  Even if we didn't throw the UnicodeDecodeError,
-        # the input may have contained mnemonic or numeric HTML entites mixed
-        # with other characters.  Trying to grok the real meaning out of that
-        # is complex and error prone, so we don't try.
-        pass
+    #try:
+    #    regexp = regexp.decode(Utils.GetCharSet(mlist.preferred_language))
+    #except UnicodeDecodeError:
+    #    # This is probably a non-ascii character and an English language
+    #    # (ascii) list.  Even if we didn't throw the UnicodeDecodeError,
+    #    # the input may have contained mnemonic or numeric HTML entites mixed
+    #    # with other characters.  Trying to grok the real meaning out of that
+    #    # is complex and error prone, so we don't try.
+    #    pass
     if regexp:
         try:
             cre = re.compile(regexp, re.IGNORECASE)
@@ -977,7 +975,7 @@ def membership_options(mlist, subcat, cgidata, doc, form):
         # put into FieldStorage's keys :-(
         qsenviron = os.environ.get('QUERY_STRING')
         if qsenviron:
-            qs = cgi.parse_qs(qsenviron)
+            qs = urllib.parse.parse_qs(qsenviron)
             bucket = qs.get('letter', '0')[0].lower()
         keys = list(buckets.keys())
         keys.sort()
@@ -1180,7 +1178,7 @@ def membership_options(mlist, subcat, cgidata, doc, form):
     parsedqs = 0
     qsenviron = os.environ.get('QUERY_STRING')
     if qsenviron:
-        qs = cgi.parse_qs(qsenviron).get('legend')
+        qs = urllib.parse.parse_qs(qsenviron).get('legend')
         if qs and type(qs) is list:
             qs = qs[0]
         if qs == 'yes':
@@ -1427,8 +1425,8 @@ def change_options(mlist, category, subcat, cgidata, doc):
     confirmed = 0
     # Handle changes to the list moderator password.  Do this before checking
     # the new admin password, since the latter will force a reauthentication.
-    new = cgidata.getfirst('newmodpw', '').strip()
-    confirm = cgidata.getfirst('confirmmodpw', '').strip()
+    new = cgidata.getfirst('newmodpw', '').strip().encode()
+    confirm = cgidata.getfirst('confirmmodpw', '').strip().encode()
     if new or confirm:
         if new == confirm:
             mlist.mod_password = sha_new(new).hexdigest()
@@ -1438,8 +1436,8 @@ def change_options(mlist, category, subcat, cgidata, doc):
             doc.addError(_('Moderator passwords did not match'))
     # Handle changes to the list poster password.  Do this before checking
     # the new admin password, since the latter will force a reauthentication.
-    new = cgidata.getfirst('newpostpw', '').strip()
-    confirm = cgidata.getfirst('confirmpostpw', '').strip()
+    new = cgidata.getfirst('newpostpw', '').strip().encode()
+    confirm = cgidata.getfirst('confirmpostpw', '').strip().encode()
     if new or confirm:
         if new == confirm:
             mlist.post_password = sha_new(new).hexdigest()
@@ -1448,13 +1446,13 @@ def change_options(mlist, category, subcat, cgidata, doc):
         else:
             doc.addError(_('Poster passwords did not match'))
     # Handle changes to the list administrator password
-    new = cgidata.getfirst('newpw', '').strip()
-    confirm = cgidata.getfirst('confirmpw', '').strip()
+    new = cgidata.getfirst('newpw', '').strip().encode()
+    confirm = cgidata.getfirst('confirmpw', '').strip().encode()
     if new or confirm:
         if new == confirm:
             mlist.password = sha_new(new).hexdigest()
             # Set new cookie
-            print(mlist.MakeCookie(mm_cfg.AuthListAdmin))
+            print((mlist.MakeCookie(mm_cfg.AuthListAdmin)))
         else:
             doc.addError(_('Administrator passwords did not match'))
     # Give the individual gui item a chance to process the form data
@@ -1466,7 +1464,10 @@ def change_options(mlist, category, subcat, cgidata, doc):
     # mass subscription, removal processing for members category
     subscribers = ''
     subscribers += cgidata.getfirst('subscribees', '')
-    subscribers += cgidata.getfirst('subscribees_upload', '')
+    try:
+        subscribers += cgidata.getfirst('subscribees_upload', '').decode()
+    except (UnicodeDecodeError, AttributeError):
+        subscribers += cgidata.getfirst('subscribees_upload', '')
     if subscribers:
         entries = [_f for _f in [n.strip() for n in subscribers.splitlines()] if _f]
         send_welcome_msg = safeint('send_welcome_msg_to_this_batch',
@@ -1744,7 +1745,7 @@ def change_options(mlist, category, subcat, cgidata, doc):
     # do the user options for members category
     if 'setmemberopts_btn' in cgidata and 'user' in cgidata:
         user = cgidata['user']
-        if type(user) is ListType:
+        if type(user) is list:
             users = []
             for ui in range(len(user)):
                 users.append(urllib.parse.unquote(user[ui].value))

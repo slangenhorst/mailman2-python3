@@ -70,7 +70,7 @@ class Results:
         # Python 2.1's unicode() builtin doesn't call obj.__unicode__().
         subj = msg.get('subject', '')
         try:
-            subj = make_header(decode_header(subj)).__unicode__()
+            subj = make_header(decode_header(subj)).__str__()
             # TK: Currently we don't allow 8bit or multibyte in mail command.
             # MAS: However, an l10n 'Re:' may contain non-ascii so ignore it.
             subj = subj.encode('us-ascii', 'ignore')

@@ -17,7 +17,7 @@
 
 
 """Handle passwords and sanitize approved messages."""
-from __future__ import print_function
+
 
 # There are current 5 roles defined in Mailman, as codified in Defaults.py:
 # user, list-creator, list-moderator, list-admin, site-admin.
@@ -97,7 +97,7 @@ class SecurityManager(object):
         if authcontext == mm_cfg.AuthUser:
             if user is None:
                 # A bad system error
-                raise Exception(TypeError, 'No user supplied for AuthUser context')
+                raise TypeError('No user supplied for AuthUser context')
             user = Utils.UnobscureEmail(urllib.parse.unquote(user))
             secret = self.getMemberPassword(user)
             userdata = urllib.parse.quote(Utils.ObscureEmail(user), safe='')
@@ -140,7 +140,6 @@ class SecurityManager(object):
             # Don't authenticate null passwords
             return mm_cfg.UnAuthorized
         # python3
-        response = response.encode('UTF-8')
         for ac in authcontexts:
             if ac == mm_cfg.AuthCreator:
                 ok = Utils.check_global_password(response, siteadmin=0)
@@ -174,11 +173,11 @@ class SecurityManager(object):
                 key, secret = self.AuthContextInfo(ac)
                 if secret is None:
                     continue
-                sharesponse = sha_new(response).hexdigest()
+                sharesponse = sha_new(response.encode()).hexdigest()
                 upgrade = ok = False
                 if sharesponse == secret:
                     ok = True
-                elif md5_new(response).digest() == secret:
+                elif md5_new(response.encode()).digest() == secret:
                     ok = upgrade = True
                 elif cryptmatchp(response, secret):
                     ok = upgrade = True
@@ -199,12 +198,12 @@ class SecurityManager(object):
             elif ac == mm_cfg.AuthListModerator:
                 # The list moderator password must be sha'd
                 key, secret = self.AuthContextInfo(ac)
-                if secret and sha_new(response).hexdigest() == secret:
+                if secret and sha_new(response.encode()).hexdigest() == secret:
                     return ac
             elif ac == mm_cfg.AuthListPoster:
                 # The list poster password must be sha'd
                 key, secret = self.AuthContextInfo(ac)
-                if secret and sha_new(response).hexdigest() == secret:
+                if secret and sha_new(response.encode()).hexdigest() == secret:
                     return ac
             elif ac == mm_cfg.AuthUser:
                 if user is not None:
@@ -245,11 +244,11 @@ class SecurityManager(object):
         # Timestamp
         issued = int(time.time())
         # Get a digest of the secret, plus other information.
-        needs_hashing = (secret + repr(issued)).encode('utf-8')
+        needs_hashing = (secret + repr(issued)).encode("utf-8")
         mac = sha_new(needs_hashing).hexdigest()
         # Create the cookie object.
         c = http.cookies.SimpleCookie()
-        c[key] = binascii.hexlify(marshal.dumps((issued, mac)))
+        c[key] = binascii.hexlify(marshal.dumps((issued, mac))).decode()
         # The path to all Mailman stuff, minus the scheme and host,
         # i.e. usually the string `/mailman'
         parsed = urlparse(self.web_page_url)

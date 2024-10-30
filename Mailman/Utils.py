@@ -32,7 +32,7 @@ import time
 import errno
 import base64
 import random
-import urllib
+import urllib.request, urllib.parse, urllib.error
 import urllib.request, urllib.error
 import html.entities
 import html
@@ -79,7 +79,7 @@ except ImportError:
     have_ipaddress = False
 
 EMPTYSTRING = ''
-UEMPTYSTRING = u''
+UEMPTYSTRING = ''
 CR = '\r'
 NL = '\n'
 DOT = '.'
@@ -249,20 +249,20 @@ def ValidateEmail(s):
             s = s[-1]
     # Pretty minimal, cheesy check.  We could do better...
     if not s or s.count(' ') > 0:
-        raise Exception(Errors.MMBadEmailError)
+        raise Errors.MMBadEmailError
     if _badchars.search(s):
-        raise Exception(Errors.MMHostileAddress, s)
+        raise Errors.MMHostileAddress(s)
     user, domain_parts = ParseEmail(s)
     # This means local, unqualified addresses, are not allowed
     if not domain_parts:
-        raise Exception(Errors.MMBadEmailError, s)
+        raise Errors.MMBadEmailErrors
     if len(domain_parts) < 2:
-        raise Exception(Errors.MMBadEmailError, s)
+        raise Errors.MMBadEmailError(s)
     # domain parts may only contain ascii letters, digits and hyphen
     # and must not begin with hyphen.
     for p in domain_parts:
         if len(p) == 0 or p[0] == '-' or len(_valid_domain.sub('', p)) > 0:
-            raise Exception(Errors.MMHostileAddress, s)
+            raise Errors.MMHostileAddress(s)
 
 
 
@@ -451,7 +451,7 @@ def set_global_password(pw, siteadmin=True):
     omask = os.umask(0o026)
     try:
         fp = open(filename, 'w')
-        fp.write(sha_new(pw).hexdigest() + '\n')
+        fp.write(sha_new(pw.encode()).hexdigest() + '\n')
         fp.close()
     finally:
         os.umask(omask)
@@ -477,7 +477,7 @@ def check_global_password(response, siteadmin=True):
     challenge = get_global_password(siteadmin)
     if challenge is None:
         return None
-    return challenge == sha_new(response).hexdigest()
+    return challenge == sha_new(response.encode()).hexdigest()
 
 
 
@@ -504,8 +504,8 @@ def websafe(s, doubleescape=False):
             s = s.decode(errors='ignore')
         re.sub('&', '&amp', s)
         # Don't double escape html entities
-        #return _ampre.sub(r'&\1', html.escape(s, quote=True))
-        return html.escape(s, quote=True)
+        return _ampre.sub(r'&\1', html.escape(s, quote=True))
+        #return html.escape(s, quote=True)
 
 
 def nntpsplit(s):
@@ -632,7 +632,7 @@ def findtext(templatefile, dict=None, raw=False, lang=None, mlist=None):
         except IOError as e:
             if e.errno != errno.ENOENT: raise
             # We never found the template.  BAD!
-            raise Exception(IOError(errno.ENOENT, 'No template file found', templatefile))
+            raise IOError(errno.ENOENT, 'No template file found', templatefile)
     template = fp.read()
     fp.close()
     text = template
@@ -769,7 +769,8 @@ def GetLanguageDescr(lang):
 
 
 def GetCharSet(lang):
-    return mm_cfg.LC_DESCRIPTIONS[lang][1]
+    return "utf-8"
+    #return mm_cfg.LC_DESCRIPTIONS[lang][1]
 
 def GetDirection(lang):
     return mm_cfg.LC_DESCRIPTIONS[lang][2]
@@ -933,7 +934,7 @@ def canonstr(s, lang=None):
 # html references.  It always returns a byte string.
 def uncanonstr(s, lang=None):
     if s is None:
-        s = u''
+        s = ''
     if lang is None:
         charset = 'us-ascii'
     else:
@@ -942,11 +943,7 @@ def uncanonstr(s, lang=None):
     # set.  If so, return it unchanged, except for coercing it to a byte
     # string.
     try:
-        if type(s) is str:
-            return s.encode(charset)
-        else:
-            u = str(s, charset)
-            return s
+        return s
     except UnicodeError:
         # Nope, it contains funny characters, so html-ref it
         return uquote(s)
@@ -968,7 +965,7 @@ def oneline(s, cset):
     # Decode header string in one line and convert into specified charset
     try:
         h = email.header.make_header(email.header.decode_header(s))
-        ustr = h.__unicode__()
+        ustr = h.__str__()
         line = UEMPTYSTRING.join(ustr.splitlines())
         return line.encode(cset, 'replace')
     except (LookupError, UnicodeError, ValueError, HeaderParseError):
@@ -1504,10 +1501,10 @@ def _invert_xml(mo):
         elif mo.group(1)[:1].lower() == 'u':
             return chr(int(mo.group(1)[1:], 16))
         else:
-            return(u'\ufffd')
+            return('\ufffd')
     except ValueError:
         # Value is out of range.  Return the unicode replace character.
-        return(u'\ufffd')
+        return('\ufffd')
 
 
 def xml_to_unicode(s, cset):
@@ -1519,8 +1516,8 @@ def xml_to_unicode(s, cset):
     """
     if isinstance(s, str):
         us = s.decode(cset, 'replace')
-        us = re.sub(u'&(#[0-9]+);', _invert_xml, us)
-        us = re.sub(u'(?i)\\\\(u[a-f0-9]{4})', _invert_xml, us)
+        us = re.sub('&(#[0-9]+);', _invert_xml, us)
+        us = re.sub('(?i)\\\\(u[a-f0-9]{4})', _invert_xml, us)
         return us
     else:
         return s

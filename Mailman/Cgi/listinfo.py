@@ -17,7 +17,7 @@
 
 """Produce listinfo page, primary web entry-point to mailing lists.
 """
-from __future__ import print_function
+
 
 # No lock needed in this script, because we don't change data.
 
@@ -70,7 +70,7 @@ def main():
         doc.AddItem(Bold(_('Invalid options to CGI script.')))
         # Send this with a 400 status.
         print('Status: 400 Bad Request')
-        print(doc.Format())
+        print((doc.Format()))
         return
 
     if not Utils.IsLanguage(language):
@@ -171,7 +171,7 @@ def listinfo_overview(msg=''):
     doc.AddItem(table)
     doc.AddItem('<hr>')
     doc.AddItem(MailmanLogo())
-    print(doc.Format())
+    print((doc.Format()))
 
 
 
@@ -237,12 +237,12 @@ def list_listinfo(mlist, lang):
                 '<input type="hidden" name="sub_form_token"'
                 ' value="%s:%s:%s">\n'
                 % (now, captcha_idx,
-                          Utils.sha_new(mm_cfg.SUBSCRIBE_FORM_SECRET + ":" +
-                          now + ":" +
-                          captcha_idx + ":" +
-                          mlist.internal_name() + ":" +
-                          remote
-                          ).encode('utf-8').hexdigest()
+                          Utils.sha_new(mm_cfg.SUBSCRIBE_FORM_SECRET.encode() + b":" +
+                          now.encode() + b":" +
+                          captcha_idx.encode() + b":" +
+                          mlist.internal_name().encode() + b":" +
+                          remote.encode()
+                          ).hexdigest()
                     )
                 )
     # Roster form substitutions
@@ -279,7 +279,7 @@ def list_listinfo(mlist, lang):
 
     # Do the expansion.
     doc.AddItem(mlist.ParseTags('listinfo.html', replacements, lang))
-    print(doc.Format())
+    print((doc.Format()))
 
 
 

@@ -7,11 +7,11 @@ import sys
 import time
 from email.utils import parseaddr, parsedate_tz, mktime_tz, formatdate
 import pickle
-from io import StringIO
+from io import BytesIO
 
 # Work around for some misguided Python packages that add iso-8859-1
 # accented characters to string.lowercase.
-lowercase = lowercase[:26]
+lowercase = 'abcdefghijklmnopqrstuvwxyz'
 
 __version__ = '0.09 (Mailman edition)'
 VERSION = __version__
@@ -115,7 +115,7 @@ class Database(DatabaseInterface):
         self.changed[archive, article.msgid] = None
 
         parentID = article.parentID
-        if parentID is not None and parentID in self.articleIndex:
+        if parentID is not None and self.articleIndex.has_key(parentID):
             parent = self.getArticle(archive, parentID)
             myThreadKey = (parent.threadKey + article.date + '.'
                            + str(article.sequence) + '-')
@@ -220,9 +220,10 @@ class Article(object):
                 self.headers[i] = message[i]
 
         # Read the message body
-        s = StringIO(message.get_payload(decode=True)\
-                     or message.as_string().split('\n\n',1)[1])
-        self.body = s.readlines()
+        s = BytesIO(message.get_payload(decode=True)\
+                     or message.as_bytes().split(b'\n\n',1)[1])
+        self.body = [x.decode('utf-8') for x in s.readlines()]
+        s.close()
 
     def _set_date(self, message):
         def floatdate(datestr):
@@ -300,7 +301,7 @@ class T(object):
         try:
             if not reload:
                 raise IOError
-            f = open(os.path.join(self.basedir, 'pipermail.pck'), 'r')
+            f = open(os.path.join(self.basedir, 'pipermail.pck'), 'rb')
             self.message(C_('Reloading pickled archive state'))
             d = pickle.load(f, fix_imports=True, encoding='latin1')
             f.close()
@@ -335,7 +336,7 @@ class T(object):
 
         omask = os.umask(0o007)
         try:
-            f = open(os.path.join(self.basedir, 'pipermail.pck'), 'w')
+            f = open(os.path.join(self.basedir, 'pipermail.pck'), 'wb')
         finally:
             os.umask(omask)
         pickle.dump(self.getstate(), f)
@@ -529,14 +530,13 @@ class T(object):
             self.__f = open(path, 'w')
         finally:
             os.umask(omask)
-        self.__stdout = sys.stdout
         sys.stdout = self.__f
 
     def _restore_stdout(self):
-        sys.stdout = self.__stdout
+        sys.stdout = sys.__stdout__
+        self.__f.flush()
         self.__f.close()
         del self.__f
-        del self.__stdout
 
     # Update only archives that have been marked as "changed".
     def update_dirty_archives(self):
@@ -558,20 +558,14 @@ class T(object):
         counter = 0
         if start:
             mbox.skipping(True)
-        while counter < start:
-            try:
-                m = next(mbox)
-            except Errors.DiscardMessage:
+        for m in mbox:
+            if counter < start:
+                counter += 1
                 continue
-            if m is None:
-                return
-            counter += 1
-        if start:
-            mbox.skipping(False)
-        while 1:
+            if start and counter == start:
+                mbox.skipping(False)
             try:
                 pos = input.tell()
-                m = next(mbox)
             except Errors.DiscardMessage:
                 continue
             except Exception:
@@ -599,16 +593,12 @@ class T(object):
         # If the archive directory doesn't exist, create it
         try:
             os.stat(archivedir)
-        except os.error as errdata:
-            errno, errmsg = errdata
-            if errno == 2:
-                omask = os.umask(0)
-                try:
-                    os.mkdir(archivedir, self.DIRMODE)
-                finally:
-                    os.umask(omask)
-            else:
-                raise os.error(errdata)
+        except FileNotFoundError:
+            omask = os.umask(0)
+            try:
+                os.mkdir(archivedir, self.DIRMODE)
+            finally:
+                os.umask(omask)
         self.open_new_archive(archive, archivedir)
 
     def add_article(self, article):
@@ -638,7 +628,6 @@ class T(object):
                 subject = article.decoded['stripped'].lower()
             else:
                 subject = article.subject.lower()
-
             article.parentID = parentID = self.get_parent_info(arch, article)
             if parentID:
                 parent = self.database.getArticle(arch, parentID)
@@ -658,11 +647,11 @@ class T(object):
 
     def get_parent_info(self, archive, article):
         parentID = None
-        if article.in_reply_to:
+        if article.in_reply_to != '':
             if self.database.hasArticle(archive, article.in_reply_to):
                 # Only use In-Reply-To if it's in the archive.
                 parentID = article.in_reply_to
-        if not parentID and article.references:
+        if (not parentID) and (len(article.references) > 0):
             refs = self._remove_external_references(article.references)
             if refs:
                 maxdate = self.database.getArticle(archive, refs[0])
@@ -826,7 +815,7 @@ class BSDDBdatabase(Database):
         self.__closeIndices()
     def hasArticle(self, archive, msgid):
         self.__openIndices(archive)
-        return msgid in self.articleIndex
+        return self.articleIndex.has_key(msgid)
     def setThreadKey(self, archive, key, msgid):
         self.__openIndices(archive)
         self.threadIndex[key] = msgid

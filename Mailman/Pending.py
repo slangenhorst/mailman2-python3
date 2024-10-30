@@ -29,6 +29,7 @@ from Mailman import mm_cfg
 from Mailman import UserDesc
 from Mailman.Utils import sha_new
 
+
 # Types of pending records
 SUBSCRIPTION = 'S'
 UNSUBSCRIPTION = 'U'
@@ -68,8 +69,12 @@ class Pending(object):
         # are discarded because they're the most predictable bits.
         while True:
             now = time.time()
-            x = random.random() + now % 1.0 + time.clock() % 1.0
-            cookie = sha_new(repr(x)).hexdigest()
+            x = random.random() + now % 1.0 + time.perf_counter() % 1.0
+            cookie = sha_new(repr(x).encode()).hexdigest()
+            try:
+                cookie = cookie.decode("utf-8")
+            except:
+                pass
             # We'll never get a duplicate, but we'll be anal about checking
             # anyway.
             if cookie not in db:
@@ -84,7 +89,7 @@ class Pending(object):
 
     def __load(self):
         try:
-            fp = open(self.__pendfile)
+            fp = open(self.__pendfile, 'rb')
         except IOError as e:
             if e.errno != errno.ENOENT: raise
             return {'evictions': {}}
@@ -112,7 +117,7 @@ class Pending(object):
         tmpfile = '%s.tmp.%d.%d' % (self.__pendfile, os.getpid(), now)
         omask = os.umask(0o007)
         try:
-            fp = open(tmpfile, 'w')
+            fp = open(tmpfile, 'wb')
             try:
                 pickle.dump(db, fp)
                 fp.flush()
@@ -130,6 +135,10 @@ class Pending(object):
         from the database.
         """
         db = self.__load()
+        try:
+            cookie = cookie.decode("utf-8")
+        except:
+            pass
         # If we're not expunging, the database is read-only.
         if not expunge:
             return db.get(cookie)
@@ -148,6 +157,10 @@ class Pending(object):
     def pend_repend(self, cookie, data, lifetime=mm_cfg.PENDING_REQUEST_LIFE):
         assert self.Locked()
         db = self.__load()
+        try:
+            cookie = cookie.decode("utf-8")
+        except:
+            pass
         db[cookie] = data
         db['evictions'][cookie] = time.time() + lifetime
         self.__save(db)
@@ -164,7 +177,10 @@ def _update(olddb):
         # The cookies used to be kept as a 6 digit integer.  We now keep the
         # cookies as a string (sha in our case, but it doesn't matter for
         # cookie matching).
-        cookie = str(cookie)
+        try:
+            cookie = cookie.decode("utf-8") #str(cookie)
+        except:
+            pass
         # The old format kept the content as a tuple and tacked the timestamp
         # on as the last element of the tuple.  We keep the timestamps
         # separate, but require the prepending of a record type indicator.  We

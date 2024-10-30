@@ -51,7 +51,7 @@ called `LockFile.log' and placed in the temp directory (calculated from
 tempfile.mktemp()).
 
 """
-from __future__ import print_function
+
 
 # This code has undergone several revisions, with contributions from Barry
 # Warsaw, Thomas Wouters, Harald Meland, and John Viega.  It should also work

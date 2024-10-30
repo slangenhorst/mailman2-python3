@@ -16,7 +16,7 @@
 # USA.
 
 """Script which implements admin editing of the list's html templates."""
-from __future__ import print_function
+
 
 import os
 import cgi
@@ -75,7 +75,7 @@ def main():
     parts = Utils.GetPathPieces()
     if not parts:
         doc.AddItem(Header(2, _("List name is required.")))
-        print(doc.Format())
+        print((doc.Format()))
         return
 
     listname = parts[0].lower()
@@ -87,7 +87,7 @@ def main():
         doc.AddItem(Header(2, _('No such list <em>%(safelistname)s</em>')))
         # Send this with a 404 status.
         print('Status: 404 Not Found')
-        print(doc.Format())
+        print((doc.Format()))
         syslog('error', 'edithtml: No such list "%s": %s', listname, e)
         return
 
@@ -105,7 +105,7 @@ def main():
         doc.AddItem(Bold(_('Invalid options to CGI script.')))
         # Send this with a 400 status.
         print('Status: 400 Bad Request')
-        print(doc.Format())
+        print((doc.Format()))
         return
 
     # CSRF check
@@ -162,7 +162,7 @@ def main():
             doc.SetTitle(_('Edit HTML : Error'))
             doc.AddItem(Header(2, _("%(safetemplatename)s: Invalid template")))
             doc.AddItem(mlist.GetMailmanFooter())
-            print(doc.Format())
+            print((doc.Format()))
             return
     else:
         doc.SetTitle(_('%(realname)s -- HTML Page Editing'))
@@ -174,7 +174,7 @@ def main():
             template_list.AddItem(l)
         doc.AddItem(FontSize("+2", template_list))
         doc.AddItem(mlist.GetMailmanFooter())
-        print(doc.Format())
+        print((doc.Format()))
         return
 
     try:
@@ -187,7 +187,7 @@ def main():
         FormatHTML(mlist, doc, template_name, template_info, lang=language)
     finally:
         doc.AddItem(mlist.GetMailmanFooter())
-        print(doc.Format())
+        print((doc.Format()))
 
 
 

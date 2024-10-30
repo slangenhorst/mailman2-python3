@@ -16,7 +16,7 @@
 # USA.
 
 """Provide a password-interface wrapper around private archives."""
-from __future__ import print_function
+
 
 import os
 import sys
@@ -64,7 +64,7 @@ def main():
     if not parts:
         doc.SetTitle(_("Private Archive Error"))
         doc.AddItem(Header(3, _("You must specify a list.")))
-        print(doc.Format())
+        print((doc.Format()))
         return
 
     path = os.environ.get('PATH_INFO')
@@ -73,7 +73,7 @@ def main():
         msg = _('Private archive - "./" and "../" not allowed in URL.')
         doc.SetTitle(msg)
         doc.AddItem(Header(2, msg))
-        print(doc.Format())
+        print((doc.Format()))
         syslog('mischief', 'Private archive hostile path: %s', path)
         return
     # BAW: This needs to be converted to the Site module abstraction
@@ -111,7 +111,7 @@ def main():
         doc.AddItem(Header(2, msg))
         # Send this with a 404 status.
         print('Status: 404 Not Found')
-        print(doc.Format())
+        print((doc.Format()))
         syslog('error', 'private: No such list "%s": %s\n', listname, e)
         return
 
@@ -127,7 +127,7 @@ def main():
         doc.AddItem(Bold(_('Invalid options to CGI script.')))
         # Send this with a 400 status.
         print('Status: 400 Bad Request')
-        print(doc.Format())
+        print((doc.Format()))
         return
     password = cgidata.getfirst('password', '')
 
@@ -171,7 +171,7 @@ def main():
                        username)
         # Output the password form
         charset = Utils.GetCharSet(mlist.preferred_language)
-        print('Content-type: text/html; charset=' + charset + '\n\n')
+        print(('Content-type: text/html; charset=' + charset + '\n\n'))
         # Put the original full path in the authorization form, but avoid
         # trailing slash if we're not adding parts.  We add it below.
         action = mlist.GetScriptURL('private', absolute=1)
@@ -189,12 +189,12 @@ def main():
         if true_filename.endswith('/index.html') and parts[-1] != 'index.html':
             action += SLASH
         # Escape web input parameter to avoid cross-site scripting.
-        print(Utils.maketext(
+        print((Utils.maketext(
             'private.html',
             {'action'  : Utils.websafe(action),
              'realname': mlist.real_name,
              'message' : message,
-             }, mlist=mlist))
+             }, mlist=mlist)))
         return
 
     lang = mlist.getMemberLanguage(username)
@@ -220,9 +220,9 @@ def main():
         doc.SetTitle(msg)
         doc.AddItem(Header(2, msg))
         print('Status: 404 Not Found')
-        print(doc.Format())
+        print((doc.Format()))
         syslog('error', 'Private archive file not found: %s', true_filename)
     else:
-        print('Content-type: %s\n' % ctype)
+        print(('Content-type: %s\n' % ctype))
         sys.stdout.write(f.read())
         f.close()

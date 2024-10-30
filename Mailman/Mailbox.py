@@ -18,6 +18,7 @@
 """Extend mailbox.UnixMailbox.
 """
 
+import os
 import sys
 import mailbox
 
@@ -26,13 +27,14 @@ from email.parser import Parser
 from email.errors import MessageParseError
 
 from Mailman import mm_cfg
-from Mailman.Message import Generator
+from Mailman.Message import Generator, BytesGenerator
 from Mailman.Message import Message
+from Mailman.Logging.Syslog import syslog
 
 
 def _safeparser(fp):
     try:
-        return email.message_from_file(fp, Message)
+        return email.message_from_binary_file(fp, Message)
     except MessageParseError:
         # Don't return None since that will stop a mailbox iterator
         return ''
@@ -40,30 +42,45 @@ def _safeparser(fp):
 
 
 class Mailbox(mailbox.mbox):
-    def __init__(self, fp):
-        mailbox.mbox.__init__(self, fp, _safeparser)
+    def __init__(self, fp, factory = _safeparser):
+        #mailbox.mbox.__init__(self, fp, _safeparser)
+        #class mbox (_mboxMMDF)
+        self._message_factory = mailbox.mboxMessage
+        #class _mboxMMDF (_singlefileMailbox)
+        self._f = fp
+        self._toc = None
+        self._next_key = 0
+        self._pending = False       # No changes require rewriting the file.
+        self._pending_sync = False  # No need to sync the file
+        self._locked = False
+        self._file_length = None    # Used to record mailbox size
+        #class _singlefileMailbox (Mailbox)
+        self._file = fp
+        #class Mailbox
+        self._factory = factory
+        self._path = None
 
     # msg should be an rfc822 message or a subclass.
     def AppendMessage(self, msg):
         # Check the last character of the file and write a newline if it isn't
         # a newline (but not at the beginning of an empty file).
         try:
-            self.fp.seek(-1, 2)
+            self._f.seek(-1, 2)
         except IOError as e:
             # Assume the file is empty.  We can't portably test the error code
             # returned, since it differs per platform.
             pass
         else:
-            if self.fp.read(1) != '\n':
-                self.fp.write('\n')
+            if self._f.read(1) != b'\n':
+                self._f.write(b'\n')
         # Seek to the last char of the mailbox
-        self.fp.seek(0, 2)
+        self._f.seek(0, 2)
         # Create a Generator instance to write the message to the file
-        g = Generator(self.fp)
+        g = BytesGenerator(self._f)
         g.flatten(msg, unixfrom=True)
         # Add one more trailing newline for separation with the next message
         # to be appended to the mbox.
-        print(file=self.fp)
+        self._f.write(b'\n')
 
 
 
@@ -96,7 +113,7 @@ class ArchiverMailbox(Mailbox):
         else:
             self._scrubber = None
         self._mlist = mlist
-        mailbox.PortableUnixMailbox.__init__(self, fp, _archfactory(self))
+        Mailbox.__init__(self, fp, _archfactory(self))
 
     def scrub(self, msg):
         if self._scrubber:
@@ -111,3 +128,39 @@ class ArchiverMailbox(Mailbox):
             self.factory = _safeparser
         else:
             self.factory = _archfactory(self)
+
+
+    def _generate_toc(self):
+        linesep = os.linesep.encode('ascii')
+        """Generate key-to-(start, stop) table of contents."""
+        starts, stops = [0], []
+        last_was_empty = False
+        self._file.seek(0)
+        while True:
+            line_pos = self._file.tell()
+            line = self._file.readline()
+            if line.startswith(b'From '):
+                if len(stops) < len(starts):
+                    if last_was_empty:
+                        stops.append(line_pos - len(linesep))
+                    else:
+                        # The last line before the "From " line wasn't
+                        # blank, but we consider it a start of a
+                        # message anyway.
+                        stops.append(line_pos)
+                starts.append(line_pos)
+                last_was_empty = False
+            elif not line:
+                if last_was_empty:
+                    stops.append(line_pos - len(linesep))
+                else:
+                    stops.append(line_pos)
+                break
+            elif line == linesep:
+                last_was_empty = True
+            else:
+                last_was_empty = False
+        self._toc = dict(enumerate(zip(starts, stops)))
+        print(self._toc)
+        self._next_key = len(self._toc)
+        self._file_length = self._file.tell()

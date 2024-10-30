@@ -101,7 +101,7 @@ def _(s, frame=1):
         charset = 'us-ascii'
     for k, v in list(dict.items()):
         if isinstance(v, str):
-            dict[k] = v.encode(charset, 'replace')
+            dict[k] = v
     try:
         return tns % dict
     except (ValueError, TypeError):

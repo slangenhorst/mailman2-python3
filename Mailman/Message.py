@@ -61,6 +61,24 @@ class Generator(email.generator.Generator):
 
 
 
+class BytesGenerator(email.generator.BytesGenerator):
+    """Generates output from a Message object tree, keeping signatures.
+
+       Headers will by default _not_ be folded in attachments.
+    """
+    def __init__(self, outfp, mangle_from_=True,
+                 maxheaderlen=78, children_maxheaderlen=0):
+        email.generator.BytesGenerator.__init__(self, outfp,
+                mangle_from_=mangle_from_, maxheaderlen=maxheaderlen)
+        self.__children_maxheaderlen = children_maxheaderlen
+
+    def clone(self, fp):
+        """Clone this generator with maxheaderlen set for children"""
+        return self.__class__(fp, self._mangle_from_,
+                self.__children_maxheaderlen, self.__children_maxheaderlen)
+
+
+
 class Message(email.message.Message):
     def __init__(self):
         # We need a version number so that we can optimize __setstate__()
@@ -261,7 +279,7 @@ class UserNotification(Message):
         self['Subject'] = Header(subject, charset, header_name='Subject',
                                  errors='replace')
         self['From'] = sender
-        if isinstance(recip, ListType):
+        if isinstance(recip, list):
             self['To'] = COMMASPACE.join(recip)
             self.recips = recip
         else:

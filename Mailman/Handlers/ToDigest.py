@@ -16,7 +16,7 @@
 # USA.
 
 """Add the message to the list's current digest and possibly send it."""
-from __future__ import print_function
+
 
 # Messages are accumulated to a Unix mailbox compatible file containing all
 # the messages destined for the digest.  This file must be parsable by the
@@ -58,7 +58,7 @@ from Mailman.Logging.Syslog import syslog
 
 _ = i18n._
 
-UEMPTYSTRING = u''
+UEMPTYSTRING = ''
 EMPTYSTRING = ''
 
 
@@ -79,7 +79,7 @@ def process(mlist, msg, msgdata):
     mboxfile = os.path.join(mlist.fullpath(), 'digest.mbox')
     omask = os.umask(0o007)
     try:
-        mboxfp = open(mboxfile, 'a+')
+        mboxfp = open(mboxfile, 'ab+')
     finally:
         os.umask(omask)
     mbox = Mailbox(mboxfp)
@@ -232,17 +232,16 @@ def send_i18n_digests(mlist, mboxfp):
     # accumulate Subject: headers and authors for the table-of-contents.
     messages = []
     msgcount = 0
-    msg = next(mbox)
-    while msg is not None:
+    for msg in mbox:
         if msg == '':
             # It was an unparseable message
-            msg = next(mbox)
             continue
         msgcount += 1
         messages.append(msg)
         # Get the Subject header
         msgsubj = msg.get('subject', _('(no subject)'))
-        subject = Utils.oneline(msgsubj, lcset)
+        subject = Utils.oneline(msgsubj, lcset).decode()
+
         # Don't include the redundant subject prefix in the toc
         mo = re.match('(re:? *)?(%s)' % re.escape(mlist.subject_prefix),
                       subject, re.IGNORECASE)
@@ -251,7 +250,7 @@ def send_i18n_digests(mlist, mboxfp):
         username = ''
         addresses = getaddresses([Utils.oneline(msg.get('from', ''), lcset)])
         # Take only the first author we find
-        if isinstance(addresses, ListType) and addresses:
+        if isinstance(addresses, list) and addresses:
             username = addresses[0][0]
             if not username:
                 username = addresses[0][1]
@@ -296,8 +295,6 @@ def send_i18n_digests(mlist, mboxfp):
                 msg[keep] = field
         # And a bit of extra stuff
         msg['Message'] = repr(msgcount)
-        # Get the next message in the digest mailbox
-        msg = next(mbox)
     # Now we're finished with all the messages in the digest.  First do some
     # sanity checking and then on to adding the toc.
     if msgcount == 0:
@@ -356,6 +353,10 @@ def send_i18n_digests(mlist, mboxfp):
                 payload = str(payload, lcset_out, 'replace'
                           ).encode(lcset, 'replace')
         print(payload, file=plainmsg)
+        try:
+            payload = payload.decode()
+        except:
+            pass
         if not payload.endswith('\n'):
             print(file=plainmsg)
     # Now add the footer but only if more than whitespace.

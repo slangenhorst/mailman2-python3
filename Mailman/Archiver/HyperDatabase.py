@@ -1,4 +1,4 @@
-from __future__ import absolute_import
+
 # Copyright (C) 1998-2018 by the Free Software Foundation, Inc.
 #
 # This program is free software; you can redistribute it and/or
@@ -134,7 +134,10 @@ class DumbBTree(object):
         return key, self.dict[key]
 
     def has_key(self, key):
-        return key in self.dict
+        try:
+            return key in self.dict
+        except:
+            return False
 
     def set_location(self, loc):
         index = 0
@@ -169,7 +172,7 @@ class DumbBTree(object):
 
     def load(self):
         try:
-            fp = open(self.path)
+            fp = open(self.path, 'rb')
             try:
                 self.dict = marshal.load(fp)
             finally:
@@ -185,7 +188,7 @@ class DumbBTree(object):
     def close(self):
         omask = os.umask(0o007)
         try:
-            fp = open(self.path, 'w')
+            fp = open(self.path, 'wb')
         finally:
             os.umask(omask)
         fp.write(marshal.dumps(self.dict))
@@ -275,7 +278,7 @@ class HyperDatabase(pipermail.Database):
 
     def hasArticle(self, archive, msgid):
         self.__openIndices(archive)
-        return msgid in self.articleIndex
+        return self.articleIndex.has_key(msgid)
 
     def setThreadKey(self, archive, key, msgid):
         self.__openIndices(archive)

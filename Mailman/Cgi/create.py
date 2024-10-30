@@ -16,7 +16,7 @@
 # USA.
 
 """Create mailing lists through the web."""
-from __future__ import print_function
+
 
 from builtins import object
 import sys
@@ -52,7 +52,7 @@ def main():
         doc.AddItem(Bold(_('Invalid options to CGI script.')))
         # Send this with a 400 status.
         print('Status: 400 Bad Request')
-        print(doc.Format())
+        print((doc.Format()))
         return
 
     parts = Utils.GetPathPieces()
@@ -80,7 +80,7 @@ def main():
                 Link(Utils.ScriptURL('admin'),
                      _('administrative list overview')).Format())
     doc.AddItem(MailmanLogo())
-    print(doc.Format())
+    print((doc.Format()))
 
 
 
@@ -102,12 +102,12 @@ def process_request(doc, cgidata):
     except ValueError:
         moderate = mm_cfg.DEFAULT_DEFAULT_MEMBER_MODERATION
 
-    password = cgidata.getfirst('password', '').strip()
-    confirm  = cgidata.getfirst('confirm', '').strip()
+    password = cgidata.getfirst('password', '').strip().encode()
+    confirm  = cgidata.getfirst('confirm', '').strip().encode()
     auth     = cgidata.getfirst('auth', '').strip()
     langs    = cgidata.getvalue('langs', [mm_cfg.DEFAULT_SERVER_LANGUAGE])
 
-    if not isinstance(langs, ListType):
+    if not isinstance(langs, list):
         langs = [langs]
     # Sanity check
     safelistname = Utils.websafe(listname)

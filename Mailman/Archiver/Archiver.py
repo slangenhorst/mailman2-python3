@@ -21,7 +21,7 @@ Public archives are separated from private ones.  An external archival
 mechanism (eg, pipermail) should be pointed to the right places, to do the
 archival.
 """
-from __future__ import absolute_import
+
 
 from builtins import str
 from builtins import object
@@ -29,7 +29,7 @@ import os
 import errno
 import traceback
 import re
-from io import StringIO
+from io import BytesIO
 
 from Mailman import mm_cfg
 from Mailman import Mailbox
@@ -142,15 +142,13 @@ class Archiver:
                 'listname': self.internal_name(),
                 'hostname': hostname
                 }
-            if not url.endswith('/'):
-                url += '/'
             return url
 
     def __archive_file(self, afn):
         """Open (creating, if necessary) the named archive file."""
         omask = os.umask(0o002)
         try:
-            return Mailbox.Mailbox(open(afn, 'a+'))
+            return Mailbox.Mailbox(open(afn, 'ab+'))
         finally:
             os.umask(omask)
 
@@ -206,7 +204,7 @@ class Archiver:
             self.ExternalArchive(mm_cfg.PRIVATE_EXTERNAL_ARCHIVER, txt)
         else:
             # use the internal archiver
-            f = StringIO(txt)
+            f = BytesIO(txt.encode('utf-8'))
             from . import HyperArch
             h = HyperArch.HyperArchive(self)
             h.processUnixMailbox(f)

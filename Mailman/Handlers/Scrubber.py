@@ -132,6 +132,10 @@ def calculate_attachments_dir(mlist, msg, msgdata):
     msgid = msg['message-id']
     if msgid is None:
         msgid = msg['Message-ID'] = Utils.unique_message_id(mlist)
+    try:
+        msgid = msgid.encode()
+    except:
+        pass
     # We assume that the message id actually /is/ unique!
     digest = sha_new(msgid).hexdigest()
     return os.path.join('attachments', datedir, digest[:4] + digest[-4:])
@@ -206,7 +210,7 @@ An embedded and charset-unspecified text was scrubbed...
 Name: %(filename)s
 URL: %(url)s
 """), lcset)
-        elif ctype == 'text/html' and isinstance(sanitize, IntType):
+        elif ctype == 'text/html' and isinstance(sanitize, int):
             if sanitize == 0:
                 if outer:
                     raise DiscardMessage
@@ -368,28 +372,14 @@ URL: %(url)s
                     # We can get here if partcharset is bogus in come way.
                     # Replace funny characters.  We use errors='replace'
                     t = str(t, 'ascii', 'replace')
-                try:
-                    # Should use HTML-Escape, or try generalizing to UTF-8
-                    t = t.encode(charset, 'replace')
-                except (UnicodeError, LookupError, ValueError,
-                        AssertionError):
-                    # if the message charset is bogus, use the list's.
-                    t = t.encode(lcset, 'replace')
             # Separation is useful
+            t = t.decode('utf-8')
             if isinstance(t, str):
                 if not t.endswith('\n'):
                     t += '\n'
                 text.append(t)
         # Now join the text and set the payload
         sep = _('-------------- next part --------------\n')
-        # The i18n separator is in the list's charset. Coerce it to the
-        # message charset.
-        try:
-            s = str(sep, lcset, 'replace')
-            sep = s.encode(charset, 'replace')
-        except (UnicodeError, LookupError, ValueError,
-                AssertionError):
-            pass
         replace_payload_by_text(msg, sep.join(text), charset)
         if format:
             msg.set_param('Format', format)
@@ -405,9 +395,8 @@ def makedirs(dir):
         os.makedirs(dir, 0o02775)
         # Unfortunately, FreeBSD seems to be broken in that it doesn't honor
         # the mode arg of mkdir().
-        def twiddle(arg, dirname, names):
-            os.chmod(dirname, 0o02775)
-        os.path.walk(dir, twiddle, None)
+        for arg, dirname, names in os.walk(dir):
+            os.chmod(arg, 0o02775)
     except OSError as e:
         if e.errno != errno.EEXIST: raise
 
@@ -496,7 +485,7 @@ def save_attachment(mlist, msg, dir, filter_html=True):
     if filter_html and ctype == 'text/html':
         base, ext = os.path.splitext(path)
         tmppath = base + '-tmp' + ext
-        fp = open(tmppath, 'w')
+        fp = open(tmppath, 'wb')
         try:
             fp.write(decodedpayload)
             fp.close()
@@ -520,7 +509,7 @@ def save_attachment(mlist, msg, dir, filter_html=True):
         submsg = msg.get_payload()
         # BAW: I'm sure we can eventually do better than this. :(
         decodedpayload = Utils.websafe(str(submsg))
-    fp = open(path, 'w')
+    fp = open(path, 'wb')
     fp.write(decodedpayload)
     fp.close()
     # Now calculate the url

@@ -69,9 +69,9 @@ def getDecodedHeaders(msg, cset='utf-8'):
     RFC 2047 decoded, normalized and separated by new lines.
     """
 
-    headers = u''
+    headers = ''
     for h, v in list(msg.items()):
-        uvalue = u''
+        uvalue = ''
         try:
             v = decode_header(re.sub('\n\s', ' ', v))
         except HeaderParseError:
@@ -88,8 +88,10 @@ def getDecodedHeaders(msg, cset='utf-8'):
                 # unicode it as iso-8859-1 which may result in a garbled
                 # mess, but we have to do something.
                 uvalue += str(frag, 'iso-8859-1', 'replace')
-        uhdr = h.decode('us-ascii', 'replace')
-        headers += u'%s: %s\n' % (h, normalize(mm_cfg.NORMALIZE_FORM, uvalue))
+            except TypeError:
+                uvalue += frag
+        uhdr = h #.decode('us-ascii', 'replace')
+        headers += '%s: %s\n' % (h, normalize(mm_cfg.NORMALIZE_FORM, uvalue))
     return headers
 
 
@@ -155,7 +157,7 @@ error, contact the mailing list owner at %(listowner)s."""))
     # Now do header_filter_rules
     # TK: Collect headers in sub-parts because attachment filename
     # extension may be a clue to possible virus/spam.
-    headers = u''
+    headers = ''
     # Get the character set of the lists preferred language for headers
     lcset = Utils.GetCharSet(mlist.preferred_language)
     for p in msg.walk():

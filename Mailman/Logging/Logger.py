@@ -16,10 +16,10 @@
 # USA.
 
 """File-based logger, writes to named category files in mm_cfg.LOG_DIR."""
-from __future__ import absolute_import
-from __future__ import division
-from __future__ import print_function
-from __future__ import unicode_literals
+
+
+
+
 
 from builtins import *
 from builtins import object
@@ -70,7 +70,7 @@ class Logger(object):
                     try:
                         f = codecs.open(
                             self.__filename, 'a+', self.__encoding, 'replace',
-                            1)
+                            0)
                     except LookupError:
                         f = open(self.__filename, 'a+', 1)
                     self.__fp = f

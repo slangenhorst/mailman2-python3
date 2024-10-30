@@ -36,6 +36,7 @@ import types
 from Mailman import mm_cfg
 from Mailman import Utils
 from Mailman.i18n import _, get_translation
+from Mailman.Logging.Syslog import syslog
 
 from Mailman.CSRFcheck import csrf_token
 
@@ -440,7 +441,7 @@ class Form(Container):
         encoding = ''
         if self.encoding:
             encoding = 'enctype="%s"' % self.encoding
-        output = '\n%s<FORM action="%s" method="%s" %s>\n' % (
+        output = '\n%s<FORM action="%s" accept-charset="utf-8" method="%s" %s>\n' % (
             spaces, self.action, self.method, encoding)
         if self.mlist:
             output = output + \
@@ -469,8 +470,6 @@ class InputObj(object):
             output.append('CHECKED')
         output.append('>')
         ret = SPACE.join(output)
-        if self.type == 'TEXT' and isinstance(ret, str):
-            ret = ret.encode(charset, 'xmlcharrefreplace')
         return ret
 
 
@@ -522,8 +521,6 @@ class TextArea(object):
         if self.readonly:
             output += ' READONLY'
         output += '>%s</TEXTAREA>' % self.text
-        if isinstance(output, str):
-            output = output.encode(charset, 'xmlcharrefreplace')
         return output
 
 class FileUpload(InputObj):
@@ -648,7 +645,7 @@ class DefinitionList(Container):
 # These are the URLs which the image logos link to.  The Mailman home page now
 # points at the gnu.org site instead of the www.list.org mirror.
 #
-from mm_cfg import MAILMAN_URL
+from .mm_cfg import MAILMAN_URL
 PYTHON_URL  = 'http://www.python.org/'
 GNU_URL     = 'http://www.gnu.org/'
 

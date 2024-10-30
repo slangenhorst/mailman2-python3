@@ -18,7 +18,7 @@
 
 Takes listname in PATH_INFO.
 """
-from __future__ import print_function
+
 
 
 # We don't need to lock in this script, because we're never going to change
@@ -74,7 +74,7 @@ def main():
         doc.AddItem(Bold(_('Invalid options to CGI script.')))
         # Send this with a 400 status.
         print('Status: 400 Bad Request')
-        print(doc.Format())
+        print((doc.Format()))
         return
 
     if not Utils.IsLanguage(lang):
@@ -118,7 +118,7 @@ def main():
         print('Status: 401 Unauthorized')
         error_page_doc(doc, _('%(realname)s roster authentication failed.'))
         doc.AddItem(mlist.GetMailmanFooter())
-        print(doc.Format())
+        print((doc.Format()))
         remote = os.environ.get('HTTP_FORWARDED_FOR',
                  os.environ.get('HTTP_X_FORWARDED_FOR',
                  os.environ.get('REMOTE_ADDR',
@@ -138,7 +138,7 @@ def main():
         text = _('View this page in'))
     replacements['<mm-lang-form-start>'] = mlist.FormatFormStart('roster')
     doc.AddItem(mlist.ParseTags('roster.html', replacements, lang))
-    print(doc.Format())
+    print((doc.Format()))
 
 
 
@@ -146,7 +146,7 @@ def error_page(errmsg):
     doc = Document()
     doc.set_language(mm_cfg.DEFAULT_SERVER_LANGUAGE)
     error_page_doc(doc, errmsg)
-    print(doc.Format())
+    print((doc.Format()))
 
 
 def error_page_doc(doc, errmsg):

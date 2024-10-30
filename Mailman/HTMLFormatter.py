@@ -270,7 +270,7 @@ class HTMLFormatter(object):
                       the subscribers list (see above).''')
         text += _(''' If you leave the field blank, you will be prompted for
         your email address''')
-        return text
+        return text.encode("utf-8")
 
     def RestrictedListMessage(self, which, restriction):
         if not restriction:
@@ -329,10 +329,10 @@ class HTMLFormatter(object):
         else:
             full_url = base_url
         if mlist:
-            return ("""<form method="POST" action="%s">
+            return ("""<form method="POST" action="%s" accept-charset="utf-8">
 <input type="hidden" name="csrf_token" value="%s">""" 
                 % (full_url, csrf_token(mlist, contexts, user)))
-        return ('<FORM Method=POST ACTION="%s">' % full_url)
+        return ('<FORM Method=POST ACTION="%s" accept-charset="utf-8">' % full_url)
 
     def FormatArchiveAnchor(self):
         return '<a href="%s">' % self.GetBaseArchiveURL()
@@ -372,7 +372,7 @@ class HTMLFormatter(object):
             tag = parts[i].lower()
             if tag in replacements:
                 repl = replacements[tag]
-                if isinstance(repl, type(u'')):
+                if isinstance(repl, type('')):
                     repl = repl.encode(charset, 'replace')
                 if type(repl) is bytes:
                     repl = repl.decode()
