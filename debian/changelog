@@ -1,3 +1,9 @@
+mailman (1:2.1.39-1.1) UNRELEASED; urgency=medium
+
+  * Python3 Port
+
+ -- schlupp  Wed, 30 Oct 2024 16:22:41 +0100
+
 mailman (1:2.1.29-1) unstable; urgency=medium
 
   * New upstream release.

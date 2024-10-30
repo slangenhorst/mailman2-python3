@@ -22,7 +22,7 @@ moderation.
 """
 
 import string
-import spamd
+from . import spamd
 
 from Mailman import mm_cfg
 from Mailman import Errors
@@ -64,7 +64,7 @@ def check_message(mlist, message):
         symbols = connection.response_message.replace(',', ', ')
 
         return score, symbols
-    except spamd.error, ex:
+    except spamd.error as ex:
         syslog('error', 'spamd: %s' % str(ex))
         return -1, ''
 

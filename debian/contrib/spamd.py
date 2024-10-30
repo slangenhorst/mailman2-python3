@@ -28,13 +28,9 @@ Usage is as follows:
 '''
 
 import socket
-import mimetools, StringIO
+import mimetools, io
 
-import __builtin__
-if not hasattr(__builtin__, 'True'):
-    __builtin__.True = (1 == 1)
-    __builtin__.False = (1 != 1)
-del __builtin__
+import builtins
 
 class error(Exception): pass
 
@@ -82,14 +78,14 @@ class SpamdConnection:
         if port: self.port = port
 
         # message structure to hold request headers
-        self.request_headers = mimetools.Message(StringIO.StringIO(), seekable=False)
+        self.request_headers = mimetools.Message(io.StringIO(), seekable=False)
         self.request_headers.fp = None
 
         # stuff that will be filled in after check()
         self.server_version = None
         self.result_code = None
         self.response_message = None
-        self.response_headers = mimetools.Message(StringIO.StringIO(), seekable=False)
+        self.response_headers = mimetools.Message(io.StringIO(), seekable=False)
 
     def addheader(self, header, value):
         '''Adds a header to the request.'''
@@ -150,7 +146,7 @@ class SpamdConnection:
 
     def getspamstatus(self):
         '''Decode the "Spam" response header.'''
-        if not self.response_headers.has_key('Spam'):
+        if 'Spam' not in self.response_headers:
             raise error('Spam header not found in response')
 
         isspam, score = self.response_headers['Spam'].split(';', 1)
