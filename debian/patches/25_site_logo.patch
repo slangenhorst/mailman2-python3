@@ -3,11 +3,11 @@ Description: Allow each mailman site to have a custom text, link and logo. Also 
 Bug-Debian: https://bugs.debian.org/267243
 Forwarded: http://sf.net/support/tracker.php?aid=1615748
 
-Index: b/Mailman/Defaults.py.in
+Index: mailman2-python3/Mailman/Defaults.py.in
 ===================================================================
---- a/Mailman/Defaults.py.in	2012-05-20 14:21:39.730888293 +0200
-+++ b/Mailman/Defaults.py.in	2012-05-20 14:21:40.878893858 +0200
-@@ -64,6 +64,12 @@
+--- mailman2-python3.orig/Mailman/Defaults.py.in
++++ mailman2-python3/Mailman/Defaults.py.in
+@@ -59,6 +59,12 @@ MAILMAN_URL = 'http://www.gnu.org/softwa
  #MAILMAN_URL = 'http://www.list.org/'
  #MAILMAN_URL = 'http://mailman.sf.net/'
  
@@ -20,11 +20,11 @@ Index: b/Mailman/Defaults.py.in
  # Mailman needs to know about (at least) two fully-qualified domain names
  # (fqdn); 1) the hostname used in your urls, and 2) the hostname used in email
  # addresses for your domain.  For example, if people visit your Mailman system
-Index: b/Mailman/htmlformat.py
+Index: mailman2-python3/Mailman/htmlformat.py
 ===================================================================
---- a/Mailman/htmlformat.py	2012-05-20 14:21:35.570867546 +0200
-+++ b/Mailman/htmlformat.py	2012-05-20 14:21:40.878893858 +0200
-@@ -631,24 +631,33 @@
+--- mailman2-python3.orig/Mailman/htmlformat.py
++++ mailman2-python3/Mailman/htmlformat.py
+@@ -658,24 +658,33 @@ GNU_HEAD = 'gnu-head-tiny.jpg'
  
  def MailmanLogo():
      t = Table(border=0, width='100%')

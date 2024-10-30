@@ -3,11 +3,11 @@ Description: Patch to prevent browser from caching pages (Closes: #281284)
 Bug-Debian: #281284
 Forwarded: no
 
-Index: b/Mailman/htmlformat.py
+Index: mailman2-python3/Mailman/htmlformat.py
 ===================================================================
---- a/Mailman/htmlformat.py	2012-05-20 14:21:40.878893858 +0200
-+++ b/Mailman/htmlformat.py	2012-05-20 14:21:42.038899614 +0200
-@@ -302,7 +302,8 @@
+--- mailman2-python3.orig/Mailman/htmlformat.py
++++ mailman2-python3/Mailman/htmlformat.py
+@@ -306,7 +306,8 @@ class Document(Container):
          charset = 'us-ascii'
          if self.language and Utils.IsLanguage(self.language):
              charset = Utils.GetCharSet(self.language)

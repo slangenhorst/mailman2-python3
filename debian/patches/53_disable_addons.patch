@@ -2,11 +2,11 @@ Author: Tollef Fog Heen <tfheen@debian.org>
 Description: Disable some modules which are pulled in from other Debian packages.
 Forwarded: not-needed
 
-Index: b/misc/Makefile.in
+Index: mailman2-python3/misc/Makefile.in
 ===================================================================
---- a/misc/Makefile.in	2012-05-20 14:21:35.426866830 +0200
-+++ b/misc/Makefile.in	2012-05-20 14:21:41.570897293 +0200
-@@ -57,7 +57,10 @@
+--- mailman2-python3.orig/misc/Makefile.in
++++ mailman2-python3/misc/Makefile.in
+@@ -57,7 +57,10 @@ EMAILPKG=	@EMAILPKG@
  JACODECSPKG=	@JACODECSPKG@
  KOCODECSPKG=	@KOCODECSPKG@
  
@@ -18,11 +18,11 @@ Index: b/misc/Makefile.in
  
  # Modes for directories and executables created by the install
  # process.  Default to group-writable directories but
-Index: b/misc/paths.py.in
+Index: mailman2-python3/misc/paths.py.in
 ===================================================================
---- a/misc/paths.py.in	2012-05-20 14:21:35.426866830 +0200
-+++ b/misc/paths.py.in	2012-05-20 14:21:41.570897293 +0200
-@@ -67,13 +67,19 @@
+--- mailman2-python3.orig/misc/paths.py.in
++++ mailman2-python3/misc/paths.py.in
+@@ -82,13 +82,19 @@ except (ImportError, AttributeError):
  # files would be imported automatically.  But because we inhibit the importing
  # of the site module, we need to be explicit about importing these codecs.
  if not jaok:

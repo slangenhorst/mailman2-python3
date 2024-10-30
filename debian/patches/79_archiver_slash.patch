@@ -3,24 +3,11 @@ Description: Some non-pipermail archivers require _no_ final slash (Closes: #350
 Bug-Debian: #350388
 Forwarded: no
 
-Index: b/Mailman/Archiver/Archiver.py
+Index: mailman2-python3/Mailman/Defaults.py.in
 ===================================================================
---- a/Mailman/Archiver/Archiver.py	2012-05-20 14:21:35.318872203 +0200
-+++ b/Mailman/Archiver/Archiver.py	2012-05-20 14:21:42.266900742 +0200
-@@ -146,8 +146,6 @@
-                 'listname': self.internal_name(),
-                 'hostname': hostname
-                 }
--            if not url.endswith('/'):
--                url += '/'
-             return url
- 
-     def __archive_file(self, afn):
-Index: b/Mailman/Defaults.py.in
-===================================================================
---- a/Mailman/Defaults.py.in	2012-05-20 14:21:40.878893858 +0200
-+++ b/Mailman/Defaults.py.in	2012-05-20 14:21:42.266900742 +0200
-@@ -248,7 +248,7 @@
+--- mailman2-python3.orig/Mailman/Defaults.py.in
++++ mailman2-python3/Mailman/Defaults.py.in
+@@ -359,7 +359,7 @@ DEFAULT_SUBSCRIBE_OR_INVITE = No
  # interpolate the name of the list into this.  You can also include a
  # "%(hostname)s" in the string, into which Mailman will interpolate
  # the host name (usually DEFAULT_URL_HOST).
