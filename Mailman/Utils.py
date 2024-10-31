@@ -255,7 +255,7 @@ def ValidateEmail(s):
     user, domain_parts = ParseEmail(s)
     # This means local, unqualified addresses, are not allowed
     if not domain_parts:
-        raise Errors.MMBadEmailErrors
+        raise Errors.MMBadEmailError(s)
     if len(domain_parts) < 2:
         raise Errors.MMBadEmailError(s)
     # domain parts may only contain ascii letters, digits and hyphen
