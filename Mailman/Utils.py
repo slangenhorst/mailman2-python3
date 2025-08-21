@@ -146,7 +146,7 @@ def wrap(text, column=70, honor_leading_ws=True):
     """
     wrapped = ''
     # first split the text into paragraphs, defined as a blank line
-    paras = re.split('\n\n', text)
+    paras = re.split(r'\n\n', text)
     for para in paras:
         # fill
         lines = []
@@ -1047,7 +1047,7 @@ def strip_verbose_pattern(pattern):
         elif c == ']' and inclass:
             inclass = False
             newpattern += c
-        elif re.search('\s', c):
+        elif re.search(r'\s', c):
             if inclass:
                 if c == NL:
                     newpattern += '\\n'
@@ -1530,7 +1530,7 @@ def check_eq_domains(email, domains_list):
     except ValueError:
         return []
     domain = domain.lower()
-    domains_list = re.sub('\s', '', domains_list).lower()
+    domains_list = re.sub(r'\s', '', domains_list).lower()
     domains = domains_list.split(';')
     domains_list = []
     for d in domains:
