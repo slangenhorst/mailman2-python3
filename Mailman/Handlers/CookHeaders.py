@@ -183,7 +183,7 @@ def process(mlist, msg, msgdata):
             uvia = str(via, lcs, errors='replace')
 
         # Replace the dummy replacements.
-        uvia = re.sub(ur'%\(lrn\)s', ulrn, re.sub(ur'%\(realname\)s', urn, uvia))
+        uvia = re.sub(r'%\(lrn\)s', ulrn, re.sub(r'%\(realname\)s', urn, uvia))
         # And get an RFC 2047 encoded header string.
         dn = str(Header(uvia, lcs))
         change_header('From',
