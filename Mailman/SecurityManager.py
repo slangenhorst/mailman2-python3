@@ -139,6 +139,8 @@ class SecurityManager(object):
         if not response:
             # Don't authenticate null passwords
             return mm_cfg.UnAuthorized
+        if isinstance(response, str):
+                    response = response.encode('utf-8')
 
         for ac in authcontexts:
             if ac == mm_cfg.AuthCreator:
@@ -173,8 +175,6 @@ class SecurityManager(object):
                 key, secret = self.AuthContextInfo(ac)
                 if secret is None:
                     continue
-                if isinstance(response, str):
-                    response = response.encode('utf-8')
 
                 sharesponse = sha_new(response).hexdigest()
                 upgrade = ok = False
