@@ -1671,7 +1671,7 @@ def set_cte_if_missing(msg, is_smime_part=False):
     if ('content-type' in msg) and ('multipart/signed' in msg['content-type'].lower()):
         # do not manipulate signed mails
         is_smime_part = True
-    if ()'content-transfer-encoding' not in msg) and (not is_smime_part):
+    if ('content-transfer-encoding' not in msg) and (not is_smime_part):
         msg['Content-Transfer-Encoding'] = '7bit'
     if msg.is_multipart():
         for part in msg.get_payload():
