@@ -415,7 +415,7 @@ def show_pending_subs(mlist, form):
                      '&nbsp;' + _('Permanently ban from this list') +
                      '</label>')
         # While the address may be a unicode, it must be ascii
-        paddr = addr.encode('us-ascii', 'replace')
+        paddr = addr.encode('us-ascii', 'replace').decode('utf-8')
         table.AddRow(['%s<br><em>%s</em><br>%s' % (paddr,
                                                    Utils.websafe(fullname),
                                                    displaytime),
@@ -746,7 +746,10 @@ def show_post_requests(mlist, id, info, total, count, form):
                 if chars >= limit > 0:
                     break
     # Ensure the full last line is included to avoid splitting multibyte characters
-    body = ''.join(lines)
+    try:
+        body = "\n".join(lines).encode('latin1').decode('utf-8')
+    except:
+        body = ''.join(lines)
     # Get message charset and try encode in list charset
     # We get it from the first text part.
     # We need to replace invalid characters here or we can throw an uncaught
