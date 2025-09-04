@@ -1665,16 +1665,19 @@ def get_current_encoding(filename):
     # if everything fails, send utf-8 and hope for the best...
     return 'utf-8'
 
-def set_cte_if_missing(msg):
+def set_cte_if_missing(msg, is_smime_part=False):
     if not hasattr(msg, 'policy'):
         msg.policy = email._policybase.compat32
-    if 'content-transfer-encoding' not in msg:
+    if ('content-type' in msg) and ('multipart/signed' in msg['content-type'].lower()):
+        # do not manipulate signed mails
+        is_smime_part = True
+    if ()'content-transfer-encoding' not in msg) and (not is_smime_part):
         msg['Content-Transfer-Encoding'] = '7bit'
     if msg.is_multipart():
         for part in msg.get_payload():
             if not hasattr(part, 'policy'):
                 part.policy = email._policybase.compat32
-            set_cte_if_missing(part)
+            set_cte_if_missing(part, is_smime_part)
 
 # Attempt to load a pickle file as utf-8 first, falling back to others. If they all fail, there was probably no hope. Note that get_current_encoding above is useless in testing pickles.
 def load_pickle(path):
