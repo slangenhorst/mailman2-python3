@@ -80,7 +80,7 @@ def process(mlist, msg, msgdata):
         # the part to be None, and you can't splitlines() on None.
         if part is not None and part.get_payload() is not None:
             lines = part.get_payload(decode=True).splitlines()
-            line = ''
+            line = b''
             for lineno, line in zip(list(range(len(lines))), lines):
                 if line.strip():
                     break
